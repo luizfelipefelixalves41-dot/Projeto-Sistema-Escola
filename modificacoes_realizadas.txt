@@ -1,0 +1,87 @@
+MODIFICACOES REALIZADAS NO SISTEMA ACADEMICO
+
+Este arquivo descreve as alteracoes feitas apos a analise das 20 perguntas de homologacao.
+
+1. Melhorias de validacao no backend
+
+- Foram adicionadas funcoes auxiliares em app.py para validar campos obrigatorios no servidor.
+- Foi adicionada validacao basica de CPF, exigindo 11 digitos numericos.
+- Foi adicionada validacao de carga horaria como numero inteiro positivo.
+- O sistema agora verifica se aluno, professor e disciplina selecionados existem antes de salvar matriculas ou vinculos.
+- O sistema agora trata melhor tentativas de envio com aluno ou disciplina vazios na tela de matriculas.
+- A remocao de matricula agora verifica se a matricula existe antes de tentar marcar como removida.
+
+2. Melhorias contra dados invalidos
+
+- Formularios vazios continuam bloqueados pelo HTML com required.
+- A validacao tambem passou a acontecer no backend, reduzindo o risco de envio direto de requisicoes invalidas.
+- Mensagens de erro foram adicionadas ou melhoradas para CPF invalido, carga horaria invalida e registros relacionados inexistentes.
+
+3. Melhorias de mensagens e textos da interface
+
+- Textos visiveis foram padronizados com acentuacao em portugues.
+- Exemplos alterados: Sistema Academico para Sistema Academico com acentuacao, Matriculas para Matriculas com acentuacao, Codigo para Codigo com acentuacao, Area para Area com acentuacao, Edicao para Edicao com acentuacao e Relatorio para Relatorio com acentuacao.
+- Mensagens de erro e alerta no app.py tambem foram ajustadas com melhor acentuacao e clareza.
+- A pesquisa de alunos agora mostra uma mensagem especifica quando nenhum aluno e encontrado para o termo pesquisado.
+
+4. Melhorias no layout responsivo
+
+- As tabelas receberam atributos data-label nos campos principais.
+- Foi adicionada uma regra CSS para telas pequenas, transformando linhas de tabela em blocos mais legiveis no celular.
+- A busca de alunos ficou mais adaptada para telas pequenas, com input e botoes ocupando a largura disponivel.
+
+5. Ajuste na regra de negocio da classe Aluno
+
+- O metodo remover_dados() em Aluno.py deixou de apagar nome, CPF, matricula e curso.
+- Agora ele desfaz os vinculos com disciplinas, limpa a lista de disciplinas e marca o aluno como inativo com ativo = False.
+- Essa mudanca preserva os dados principais do aluno e fica mais coerente com a ideia de manter historico.
+
+6. Ajustes para ambiente fora do desenvolvimento
+
+- O app.py deixou de iniciar sempre com debug=True.
+- Agora o debug so e ativado se a variavel de ambiente FLASK_DEBUG estiver definida como 1, true ou yes.
+- O README foi atualizado orientando o uso de FLASK_SECRET_KEY segura em producao.
+- O README tambem orienta usar MYSQL_REQUIRED=1 fora do ambiente de desenvolvimento para evitar uso acidental do SQLite.
+
+7. Melhorias no README
+
+- O README foi reescrito com instrucoes mais completas.
+- Foram adicionados requisitos minimos.
+- Foram adicionados passos para criar e ativar ambiente virtual.
+- Foram adicionados comandos para Windows PowerShell e Linux/macOS.
+- Foram adicionadas orientacoes sobre MySQL, SQLite local e configuracoes de producao.
+- Foi adicionada uma secao de homologacao sugerida com criterios minimos para liberar o sistema.
+
+8. Atualizacao da documentacao
+
+- A documentacao foi ajustada para explicar que remover dados do aluno agora preserva nome, CPF, matricula e curso, mantendo historico.
+
+9. Verificacoes realizadas
+
+- Foi executada verificacao de sintaxe dos arquivos Python com py_compile.
+- Foi testada a importacao da aplicacao Flask.
+- Foi executado um smoke test com o cliente de teste do Flask nas rotas / e /alunos.
+- As verificacoes foram concluidas com sucesso.
+
+Arquivos alterados:
+
+- app.py
+- Aluno.py
+- README.md
+- documentacao.txt
+- static/styles.css
+- templates/base.html
+- templates/index.html
+- templates/alunos.html
+- templates/professores.html
+- templates/disciplinas.html
+- templates/matriculas.html
+- templates/editar_aluno.html
+- templates/editar_professor.html
+- templates/editar_disciplina.html
+- templates/editar_matricula.html
+- templates/erro.html
+
+Arquivo criado:
+
+- modificacoes_realizadas.txt

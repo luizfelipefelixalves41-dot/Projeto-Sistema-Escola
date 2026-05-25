@@ -1,0 +1,563 @@
+1- O objetivo do sistema esta claro para os usuarios finais, como secretaria, professores e alunos?
+
+Resposta:
+Parcialmente. Ao analisar o codigo, a documentacao e as telas HTML, o objetivo geral do sistema fica claro: trata-se de um Sistema Academico Web feito para cadastrar alunos, professores e disciplinas, realizar matriculas, visualizar um painel com totais e gerar relatorios em PDF e JSON.
+
+Para a secretaria, o objetivo esta mais claro, pois a interface oferece funcoes administrativas diretas, como cadastro, edicao, pesquisa de alunos, controle de professores, disciplinas e matriculas.
+
+Para professores e alunos, o objetivo fica menos claro. O sistema mostra informacoes relacionadas a eles, mas nao possui login, perfis de acesso, area do aluno, area do professor ou explicacoes especificas sobre o que cada tipo de usuario pode fazer. Na pratica, a interface parece voltada principalmente para uso administrativo, e nao para uso direto por alunos e professores.
+
+Conclusao:
+O objetivo do sistema e compreensivel como um sistema academico administrativo, principalmente para a secretaria. Porem, para usuarios finais como professores e alunos, seria importante adicionar uma explicacao inicial mais clara, separar funcionalidades por tipo de usuario e criar telas ou menus especificos para cada perfil.
+
+
+2- Quais funcionalidades sao obrigatorias para considerar o sistema pronto: cadastro de alunos, professores, disciplinas, matriculas, pesquisa e relatorios?
+
+Resposta:
+Sim. Para considerar este sistema academico pronto em sua proposta atual, as funcionalidades obrigatorias sao: cadastro de alunos, cadastro de professores, cadastro de disciplinas, realizacao de matriculas, pesquisa de registros e geracao de relatorios.
+
+Ao analisar o codigo, foi possivel identificar que o sistema ja possui as principais funcionalidades esperadas:
+
+- Cadastro de alunos, com nome, CPF, matricula e curso.
+- Cadastro de professores, com nome, CPF, registro e area.
+- Cadastro de disciplinas, com nome, codigo, carga horaria e professor responsavel.
+- Matricula de alunos em disciplinas.
+- Edicao de alunos, professores, disciplinas e matriculas.
+- Remocao logica de matriculas, mantendo o registro como inativo.
+- Pesquisa de alunos por nome.
+- Painel inicial com totais de alunos, professores, disciplinas e matriculas.
+- Relatorios em PDF e JSON.
+
+Conclusao:
+As funcionalidades citadas sao obrigatorias porque representam o fluxo principal de um sistema academico basico: cadastrar pessoas e disciplinas, vincular alunos as disciplinas, consultar informacoes e emitir relatorios. No codigo atual, quase todas essas funcionalidades ja estao implementadas. O ponto que poderia ser melhorado e a pesquisa, pois ela existe para alunos, mas nao aparece de forma completa para professores, disciplinas e matriculas.
+
+
+3- Todos os campos obrigatorios dos formularios estao validados corretamente antes de salvar no banco?
+
+Resposta:
+Parcialmente. Os formularios HTML possuem o atributo required nos principais campos obrigatorios, como nome, CPF, matricula, curso, registro, area, codigo, carga horaria, aluno e disciplina. Isso ajuda a impedir o envio de campos vazios pelo navegador.
+
+O banco de dados tambem possui algumas restricoes importantes, como campos NOT NULL e campos unicos para CPF, matricula, registro e codigo. Essas restricoes ajudam a proteger os dados caso alguma informacao invalida tente ser salva.
+
+Porem, no codigo Python, a validacao antes de salvar no banco ainda e limitada. As rotas recebem os dados do formulario, aplicam strip() em alguns campos e ja enviam para o banco. Nao ha uma verificacao completa no servidor para impedir, por exemplo:
+
+- Campos contendo apenas espacos em branco.
+- CPF em formato invalido.
+- Matricula, registro ou codigo fora de um padrao esperado.
+- Carga horaria com valor invalido alem da validacao do HTML.
+- IDs de aluno, professor ou disciplina inexistentes antes de salvar vinculos.
+
+Tambem e importante observar que o required do HTML pode ser burlado, pois ele funciona apenas no navegador. Por isso, a validacao mais segura deve acontecer tambem no backend, antes do INSERT ou UPDATE.
+
+Conclusao:
+Os campos obrigatorios possuem validacao basica na interface e algumas restricoes no banco, mas nao estao totalmente validados de forma correta antes de salvar. Para o sistema ficar mais seguro e pronto, seria recomendado adicionar validacoes no servidor para campos vazios apos strip(), formatos de CPF, valores numericos, existencia dos IDs relacionados e mensagens de erro mais especificas.
+
+
+4- O sistema impede cadastros duplicados de CPF, matricula de aluno, registro de professor e codigo de disciplina?
+
+Resposta:
+Sim. O sistema impede cadastros duplicados desses campos por meio de restricoes de unicidade no banco de dados e tratamento de erro no codigo.
+
+No arquivo schema.sql, as tabelas possuem campos marcados como UNIQUE:
+
+- Na tabela alunos, o CPF e a matricula sao unicos.
+- Na tabela professores, o CPF e o registro sao unicos.
+- Na tabela disciplinas, o codigo e unico.
+
+O mesmo tipo de restricao tambem aparece na criacao automatica do banco SQLite dentro do arquivo db.py. Isso significa que, usando MySQL ou SQLite, o banco nao deve aceitar registros duplicados nesses campos.
+
+No app.py, as rotas de cadastro e edicao tratam o erro IntegrityError. Quando o usuario tenta cadastrar ou editar um registro usando CPF, matricula, registro ou codigo ja existente, o sistema exibe mensagens como:
+
+- "Ja existe aluno com este CPF ou matricula."
+- "Ja existe professor com este CPF ou registro."
+- "Ja existe disciplina com este codigo."
+
+Conclusao:
+Sim, o sistema impede duplicidade de CPF, matricula de aluno, registro de professor e codigo de disciplina. A protecao principal esta nas restricoes UNIQUE do banco de dados, e o sistema trata esses erros exibindo mensagens para o usuario. Como melhoria, poderia haver uma verificacao antes de tentar salvar, para mostrar mensagens mais detalhadas e evitar depender apenas do erro retornado pelo banco.
+
+
+5- A pesquisa de alunos por nome funciona com nomes completos, partes do nome e diferencas entre letras maiusculas e minusculas?
+
+Resposta:
+Sim. A pesquisa de alunos por nome funciona para nomes completos, partes do nome e diferencas entre letras maiusculas e minusculas.
+
+No arquivo app.py, a rota de alunos pega o valor digitado no campo pesquisa, remove espacos extras com strip() e monta uma consulta usando LIKE com porcentagens antes e depois do termo pesquisado:
+
+WHERE LOWER(a.nome) LIKE LOWER(%s)
+
+O parametro enviado para a consulta fica no formato:
+
+%termo_pesquisado%
+
+Isso permite encontrar alunos mesmo quando o usuario digita apenas uma parte do nome. Por exemplo, ao pesquisar "Ana", o sistema pode encontrar "Ana Lima". Ao pesquisar "lima", tambem pode encontrar "Ana Lima", porque o LOWER() transforma tanto o nome salvo quanto o termo pesquisado para letras minusculas durante a comparacao.
+
+Conclusao:
+Sim, a pesquisa esta implementada de forma adequada para buscar por nome completo, parte do nome e sem diferenciar maiusculas de minusculas. Uma melhoria possivel seria tratar tambem diferencas de acentos, por exemplo permitir que uma busca por "Joao" encontre "Joao" e "Joao" com acentuacao, dependendo da forma como os nomes forem cadastrados e da configuracao do banco.
+
+
+6- O fluxo de matricula impede que o mesmo aluno seja matriculado duas vezes na mesma disciplina?
+
+Resposta:
+Sim. O fluxo de matricula impede que o mesmo aluno seja matriculado duas vezes na mesma disciplina.
+
+No arquivo app.py, antes de criar uma nova matricula, o sistema consulta se ja existe uma matricula com o mesmo aluno_id e disciplina_id. Se a matricula ja existir e estiver ativa, o sistema nao cria outro registro e mostra a mensagem:
+
+"Este aluno ja esta matriculado nessa disciplina."
+
+Se a matricula ja existir, mas estiver marcada como removida/inativa, o sistema nao cria uma duplicata. Ele apenas reativa a matricula existente, alterando o campo ativo para 1 e limpando o campo removido_em.
+
+Alem disso, o banco de dados tambem possui uma restricao de unicidade para a combinacao aluno_id e disciplina_id. No MySQL, essa regra aparece como:
+
+UNIQUE KEY uk_aluno_disciplina (aluno_id, disciplina_id)
+
+No SQLite, a mesma protecao aparece como:
+
+UNIQUE (aluno_id, disciplina_id)
+
+Conclusao:
+Sim, o sistema impede matriculas duplicadas do mesmo aluno na mesma disciplina. Essa protecao acontece tanto na logica da rota de matriculas quanto na estrutura do banco de dados. O comportamento tambem e adequado quando uma matricula removida e cadastrada novamente, pois o sistema reativa o registro antigo em vez de criar outro.
+
+
+7- A remocao de matriculas esta funcionando conforme esperado, mantendo o historico no banco quando necessario?
+
+Resposta:
+Sim. A remocao de matriculas esta funcionando como uma remocao logica, mantendo o historico no banco de dados.
+
+No arquivo app.py, a rota de exclusao de matricula nao apaga o registro da tabela. Em vez disso, ela executa um UPDATE na tabela matriculas, alterando o campo ativo para 0 e preenchendo o campo removido_em com a data e hora da remocao:
+
+SET ativo = 0, removido_em = CURRENT_TIMESTAMP
+
+Isso significa que a matricula deixa de aparecer como ativa na interface principal, mas continua salva no banco. A propria mensagem exibida ao usuario confirma esse comportamento:
+
+"Matricula removida da interface. O registro continua no banco."
+
+Na tela de matriculas, a listagem mostra apenas registros ativos, pois a consulta usa:
+
+WHERE m.ativo = 1
+
+Ja nos relatorios, o sistema busca as matriculas ativas e removidas, usando um campo de status que indica se a matricula esta "ativa" ou "removida". Assim, o historico pode aparecer nos relatorios mesmo quando a matricula nao aparece mais na tela principal.
+
+Conclusao:
+Sim, a remocao de matriculas esta funcionando conforme esperado para manter historico. O sistema nao exclui definitivamente a matricula; ele apenas marca como inativa e registra quando foi removida. Esse comportamento e adequado quando e necessario preservar historico academico. Uma melhoria possivel seria criar uma tela especifica para visualizar matriculas removidas, pois atualmente elas ficam preservadas no banco e nos relatorios, mas nao aparecem na listagem principal.
+
+
+8- O metodo de remover dados do aluno em Aluno.py esta coerente com a regra de negocio definida para o projeto?
+
+Resposta:
+Parcialmente. O metodo remover_dados() da classe Aluno remove os vinculos do aluno com as disciplinas e depois limpa os dados do proprio aluno, deixando nome, CPF, matricula e curso como strings vazias. Ele tambem limpa a lista de disciplinas do aluno.
+
+Esse comportamento faz sentido em uma versao simples e didatica do projeto, focada em orientacao a objetos, porque mostra como desfazer associacoes entre objetos em memoria.
+
+Porem, quando comparado com a regra de negocio usada na parte web do sistema, o metodo nao esta totalmente coerente. No sistema web, a remocao de matriculas foi tratada como remocao logica: o registro nao e apagado do banco, apenas fica com ativo = 0 e removido_em preenchido. Isso preserva historico.
+
+Ja o metodo remover_dados() apaga as informacoes do objeto Aluno em memoria, removendo dados importantes como CPF, matricula e curso. Em um sistema academico real, esses dados normalmente nao deveriam ser simplesmente apagados, pois fazem parte do historico do aluno.
+
+Conclusao:
+O metodo remover_dados() esta coerente com uma demonstracao simples de orientacao a objetos, mas nao esta totalmente coerente com a regra de negocio mais adequada para o projeto web, que valoriza a preservacao de historico. O ideal seria substituir essa ideia de "limpar dados" por uma remocao logica, como marcar o aluno como inativo, mantendo seus dados e seus registros historicos no sistema.
+
+
+9- As telas de cadastro, edicao, listagem e pesquisa apresentam mensagens claras de sucesso, erro ou alerta?
+
+Resposta:
+Sim, em grande parte. O sistema usa mensagens flash do Flask para informar sucesso, erro ou alerta ao usuario. Essas mensagens sao exibidas no template base.html, dentro da area messages, e aparecem de forma centralizada para as telas que usam esse layout.
+
+Nas telas de cadastro e edicao, as mensagens sao claras. Por exemplo:
+
+- "Aluno cadastrado com sucesso."
+- "Aluno atualizado com sucesso."
+- "Professor cadastrado com sucesso."
+- "Disciplina atualizada com sucesso."
+- "Aluno matriculado com sucesso."
+- "Matricula removida da interface. O registro continua no banco."
+
+O sistema tambem apresenta alertas quando ocorre duplicidade ou quando um registro nao e encontrado:
+
+- "Ja existe aluno com este CPF ou matricula."
+- "Ja existe professor com este CPF ou registro."
+- "Ja existe disciplina com este codigo."
+- "Este aluno ja esta matriculado nessa disciplina."
+- "Aluno nao encontrado."
+- "Professor nao encontrado."
+- "Disciplina nao encontrada."
+- "Matricula nao encontrada."
+
+Nas listagens, tambem existem mensagens para indicar ausencia de dados, como:
+
+- "Nenhum aluno cadastrado."
+- "Nenhum professor cadastrado."
+- "Nenhuma disciplina cadastrada."
+- "Nenhuma matricula realizada."
+
+Porem, a tela de pesquisa de alunos poderia ser mais clara. Quando uma pesquisa nao encontra resultados, a interface mostra a mesma mensagem de nenhum aluno cadastrado, o que pode confundir o usuario. O ideal seria mostrar uma mensagem especifica, como "Nenhum aluno encontrado para esta pesquisa."
+
+Conclusao:
+As mensagens do sistema sao, em geral, claras e ajudam o usuario a entender o resultado das acoes. O ponto principal de melhoria esta na pesquisa, que deveria diferenciar quando nao existem alunos cadastrados de quando existem alunos, mas nenhum corresponde ao termo pesquisado. Tambem seria interessante melhorar algumas mensagens de erro tecnico para que fiquem mais amigaveis ao usuario final.
+
+
+10- O layout da interface funciona bem em telas menores, como notebook, tablet e celular?
+
+Resposta:
+Sim, de forma geral o layout foi preparado para funcionar em telas menores, mas ainda pode ser melhorado para celulares.
+
+No arquivo base.html, existe a configuracao de viewport, o que e importante para responsividade:
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+No arquivo static/styles.css, a estrutura principal usa larguras flexiveis. A classe page usa:
+
+width: min(1180px, calc(100% - 32px))
+
+Isso faz com que o conteudo respeite a largura da tela e mantenha margens laterais.
+
+O layout tambem possui uma media query para telas menores que 820px. Nessa regra, a barra superior e o titulo da pagina passam a ficar em coluna, e os grids principais deixam de ter duas colunas para usar apenas uma:
+
+@media (max-width: 820px)
+
+Com isso, formularios e listagens ficam empilhados, o que melhora o uso em tablet e celular.
+
+As tabelas tambem estao protegidas por uma div com overflow-x: auto. Isso evita que a tabela quebre o layout em telas pequenas, permitindo rolagem horizontal quando necessario.
+
+Porem, em celulares, as tabelas continuam com min-width: 640px. Isso significa que elas funcionam, mas o usuario precisa rolar para o lado para ver todas as colunas. Esse comportamento e aceitavel, mas nao e o mais confortavel para telas muito pequenas.
+
+Conclusao:
+O layout funciona bem em notebooks e tablets, e tambem funciona em celulares por causa da reorganizacao em uma coluna e da rolagem horizontal nas tabelas. Como melhoria, seria interessante adaptar as tabelas para um formato mais amigavel no celular, como cards por registro ou colunas reduzidas, evitando a necessidade de rolagem lateral.
+
+
+11- Os relatorios em JSON e PDF mostram todos os dados necessarios para conferencia academica?
+
+Resposta:
+Parcialmente. Os relatorios em JSON e PDF mostram os principais dados para uma conferencia academica basica, mas ainda nao apresentam todas as informacoes que poderiam ser importantes em uma conferencia mais completa.
+
+Na aplicacao web, a funcao get_dados_relatorio_banco() monta os dados do relatorio trazendo:
+
+- Alunos: id, nome, CPF, matricula, curso e data de criacao.
+- Professores: id, nome, CPF, registro, area e data de criacao.
+- Disciplinas: id, nome, codigo, carga horaria, professor e data de criacao.
+- Matriculas: id, aluno, matricula, disciplina, codigo, status, data de criacao e data de remocao.
+
+Esses dados sao suficientes para verificar cadastros principais, vinculos entre alunos e disciplinas, professores responsaveis e situacao das matriculas.
+
+O relatorio JSON tende a ser mais completo, porque preserva a estrutura dos dados recebidos. Ja o relatorio PDF, gerado em relatorios.py, apresenta uma versao mais resumida. Ele mostra:
+
+- Dados principais dos alunos.
+- Dados principais dos professores.
+- Dados principais das disciplinas.
+- Matriculas com aluno, disciplina, codigo e status.
+
+Porem, o PDF nao mostra todos os campos disponiveis, como id, data de criacao e data de remocao. Alem disso, os relatorios nao incluem informacoes academicas mais detalhadas, como notas, frequencia, semestre, turma, periodo letivo ou historico completo do aluno.
+
+Conclusao:
+Os relatorios mostram os dados necessarios para uma conferencia academica basica do sistema, principalmente cadastros, disciplinas e matriculas. Porem, para uma conferencia academica mais completa, seria recomendado incluir informacoes adicionais, como periodo letivo, turma, notas, frequencia e historico detalhado. Tambem seria interessante deixar o PDF com o mesmo nivel de detalhe do JSON.
+
+
+12- O banco MySQL pode ser criado corretamente a partir do arquivo schema.sql em um ambiente novo?
+
+Resposta:
+Sim. O arquivo schema.sql esta preparado para criar corretamente o banco MySQL em um ambiente novo, desde que o MySQL esteja instalado, iniciado e o usuario usado no comando tenha permissao para criar banco de dados e tabelas.
+
+O script comeca criando o banco sistema_academico, caso ele ainda nao exista:
+
+CREATE DATABASE IF NOT EXISTS sistema_academico
+
+Depois, ele seleciona esse banco com:
+
+USE sistema_academico
+
+Em seguida, cria as tabelas principais do sistema:
+
+- alunos
+- professores
+- disciplinas
+- matriculas
+
+As tabelas sao criadas em uma ordem adequada. Primeiro sao criadas as tabelas independentes, como alunos e professores. Depois sao criadas disciplinas e matriculas, que dependem de chaves estrangeiras.
+
+O script tambem define corretamente:
+
+- Chaves primarias com AUTO_INCREMENT.
+- Campos obrigatorios com NOT NULL.
+- Campos unicos, como CPF, matricula, registro e codigo.
+- Chaves estrangeiras entre disciplinas e professores.
+- Chaves estrangeiras entre matriculas, alunos e disciplinas.
+- Regras de exclusao, como ON DELETE SET NULL e ON DELETE CASCADE.
+- Campos de controle de matricula, como ativo e removido_em.
+
+Alem disso, o script insere dados iniciais usando INSERT IGNORE, o que evita erro caso os dados ja existam.
+
+Conclusao:
+Sim, o banco MySQL pode ser criado corretamente a partir do schema.sql em um ambiente novo. O comando indicado no README tambem esta correto:
+
+mysql -u root -p < schema.sql
+
+A unica ressalva e que o usuario do MySQL precisa ter permissao para executar CREATE DATABASE, CREATE TABLE e INSERT. Caso contrario, a criacao pode falhar por falta de permissao, nao por erro no arquivo schema.sql.
+
+
+13- O modo SQLite local funciona corretamente quando o MySQL nao esta disponivel?
+
+Resposta:
+Sim, pelo codigo o modo SQLite local foi implementado para funcionar quando o MySQL nao esta disponivel.
+
+No arquivo db.py, o sistema primeiro tenta conectar ao MySQL usando as configuracoes definidas em DB_CONFIG. Se essa conexao falhar e a variavel MYSQL_REQUIRED nao estiver ativada, o sistema muda automaticamente para o modo SQLite:
+
+_engine = "sqlite"
+
+Nesse modo, o banco usado e o arquivo sistema_academico.sqlite3, ou outro caminho definido pela variavel SQLITE_PATH.
+
+O codigo tambem cria automaticamente as tabelas no SQLite por meio da funcao _ensure_sqlite_schema(). Essa funcao cria as tabelas:
+
+- alunos
+- professores
+- disciplinas
+- matriculas
+
+Ela tambem define restricoes importantes, como campos obrigatorios, campos unicos e chaves estrangeiras. Alem disso, ativa:
+
+PRAGMA foreign_keys = ON
+
+Isso e importante porque garante que o SQLite respeite as chaves estrangeiras.
+
+O sistema tambem adapta as consultas para SQLite. A funcao _prepare_query() troca os marcadores %s por ?, que e o formato usado pelo SQLite. Alem disso, nas consultas com GROUP_CONCAT, o app.py usa uma versao diferente quando detecta SQLite, evitando incompatibilidade com a sintaxe do MySQL.
+
+O README tambem informa esse comportamento, dizendo que, se o MySQL nao estiver instalado ou iniciado, a aplicacao usa automaticamente um banco SQLite local para permitir testar a interface.
+
+Conclusao:
+Sim, o modo SQLite local parece funcionar corretamente quando o MySQL nao esta disponivel. Ele cria o banco local, cria as tabelas, insere dados iniciais e adapta as consultas principais. A unica ressalva e que, para producao, o mais indicado e obrigar o uso do MySQL com MYSQL_REQUIRED=1, deixando o SQLite apenas como recurso de teste ou desenvolvimento.
+
+
+14- As instrucoes do README e da documentacao permitem que outra pessoa instale e execute o projeto sem ajuda do professor?
+
+Resposta:
+Parcialmente. O README e a documentacao trazem as principais informacoes para instalar e executar o projeto, mas ainda poderiam ser mais detalhados para garantir que qualquer pessoa consiga rodar o sistema sem ajuda.
+
+O README explica os passos principais:
+
+- Criar o banco MySQL usando o arquivo schema.sql.
+- Instalar as dependencias com requirements.txt.
+- Configurar variaveis de ambiente do MySQL.
+- Executar a aplicacao com python3 app.py.
+- Acessar o sistema em http://127.0.0.1:5000.
+- Usar SQLite local quando o MySQL nao estiver disponivel.
+- Forcar o uso do MySQL com MYSQL_REQUIRED=1.
+
+A documentacao tambem explica a estrutura do projeto, os arquivos principais, o uso de MySQL, o modo SQLite local e ate uma ideia de hospedagem futura na AWS.
+
+Essas informacoes ajudam bastante uma pessoa que ja tenha algum conhecimento de Python, Flask, terminal e MySQL. Para esse perfil, provavelmente seria possivel instalar e executar o projeto sem ajuda do professor.
+
+Porem, para uma pessoa iniciante, ainda faltam alguns detalhes importantes, como:
+
+- Versao recomendada do Python.
+- Como criar e ativar um ambiente virtual.
+- Comandos equivalentes para Windows, ja que o README usa exemplos com export, mais comuns em Linux/macOS.
+- Como instalar ou iniciar o MySQL.
+- Como resolver erros comuns de conexao com o banco.
+- Como saber se o sistema esta usando MySQL ou SQLite.
+- Como parar a aplicacao depois de executar.
+- Explicacao mais direta sobre o que fazer se o comando python3 nao funcionar.
+
+Conclusao:
+As instrucoes atuais permitem que uma pessoa com conhecimento basico/intermediario consiga instalar e executar o projeto. Porem, para garantir autonomia total, principalmente para usuarios iniciantes, o README deveria incluir um passo a passo mais completo, com exemplos para Windows, criacao de ambiente virtual, requisitos minimos e uma secao de problemas comuns.
+
+
+15- Existem testes manuais documentados para cadastro, edicao, pesquisa, matricula, remocao e relatorios?
+
+Resposta:
+Parcialmente. A documentacao possui algumas listas de validacao manual, mas elas nao cobrem todos os fluxos citados de forma completa e detalhada.
+
+Na secao 14.7, chamada "Validacoes realizadas", a documentacao informa que foram feitos testes para verificar:
+
+- Sintaxe dos arquivos Python.
+- Importacao da aplicacao Flask.
+- Abertura da pagina inicial.
+- Abertura das telas de alunos, professores, disciplinas e matriculas.
+- Funcionamento da remocao logica de matriculas.
+- Geracao do arquivo JSON.
+- Geracao do arquivo PDF.
+- Download dos relatorios pela interface web.
+
+Na secao 15.9, chamada "Testes pos-deploy", existe um checklist com alguns testes manuais:
+
+- Acessar a URL publica.
+- Cadastrar aluno.
+- Cadastrar professor.
+- Cadastrar disciplina.
+- Matricular aluno em disciplina.
+- Remover matricula da interface e verificar se ela continua no banco com ativo = 0.
+- Baixar relatorio em JSON.
+- Baixar relatorio em PDF.
+- Verificar logs da aplicacao.
+- Confirmar conexao com o banco MySQL.
+
+Esses itens mostram que existe uma preocupacao com testes manuais, principalmente para cadastro, matricula, remocao e relatorios.
+
+Porem, os testes nao estao documentados como casos de teste completos. Faltam detalhes como:
+
+- Dados que devem ser digitados em cada teste.
+- Resultado esperado para cada acao.
+- Teste especifico de edicao de aluno, professor, disciplina e matricula.
+- Teste especifico de pesquisa de alunos por nome.
+- Testes com dados invalidos, duplicados ou campos vazios.
+- Indicacao de aprovado/reprovado.
+
+Conclusao:
+Existem testes manuais documentados de forma parcial. A documentacao cobre alguns fluxos importantes, como cadastro, matricula, remocao e relatorios, mas nao apresenta um roteiro completo para edicao e pesquisa. Para considerar a homologacao mais segura, seria recomendado criar uma tabela de testes manuais com passo a passo, dados de entrada, resultado esperado e status de aprovacao.
+
+
+16- O sistema foi testado com dados validos, dados incompletos, dados duplicados e dados digitados incorretamente?
+
+Resposta:
+Parcialmente. Pela documentacao, existe indicacao de que foram feitas algumas validacoes e testes, mas nao ha um registro completo mostrando testes com todos esses tipos de dados.
+
+O sistema claramente trata alguns casos de dados duplicados. No codigo e na documentacao aparecem validacoes para:
+
+- Aluno com CPF ou matricula ja cadastrados.
+- Professor com CPF ou registro ja cadastrados.
+- Disciplina com codigo ja cadastrado.
+- Aluno ja matriculado na mesma disciplina.
+
+Esses casos sao tratados no app.py com IntegrityError e mensagens de alerta para o usuario.
+
+Tambem existem dados validos usados no proprio sistema, como os dados iniciais do schema.sql e do SQLite local, incluindo alunos, professor, disciplina e matriculas. Alem disso, a documentacao informa que foram verificadas a abertura das telas, a remocao logica de matriculas e a geracao de relatorios.
+
+Para dados incompletos, os formularios HTML usam required nos principais campos obrigatorios. Isso ajuda a impedir envio vazio pelo navegador. Porem, nao ha na documentacao um roteiro de teste mostrando que campos incompletos foram testados manualmente em todos os formularios.
+
+Para dados digitados incorretamente, como CPF em formato invalido, matricula fora de padrao, texto em campo numerico ou carga horaria invalida, tambem nao ha evidencia clara de testes documentados. O campo carga horaria usa type="number" e min="1", mas a validacao no backend ainda e limitada.
+
+Conclusao:
+O sistema parece ter sido testado com dados validos e com alguns dados duplicados, mas nao ha documentacao suficiente para afirmar que foi testado completamente com dados incompletos e dados digitados incorretamente. Para melhorar a homologacao, seria importante criar casos de teste especificos para dados validos, campos vazios, duplicidades, formatos invalidos e valores fora do esperado.
+
+
+17- As mensagens, nomes de campos e textos das telas estao padronizados em portugues e sem ambiguidades?
+
+Resposta:
+Parcialmente. As mensagens, nomes de campos e textos das telas estao em portugues e, na maioria dos casos, sao compreensiveis para o usuario. O sistema usa termos consistentes com o contexto academico, como Alunos, Professores, Disciplinas, Matriculas, Cadastro, Editar, Relatorios e Pesquisa.
+
+Os campos principais tambem sao claros:
+
+- Nome
+- CPF
+- Matricula
+- Curso
+- Registro
+- Area
+- Codigo
+- Carga horaria
+- Professor
+- Disciplina
+
+As mensagens de sucesso e alerta tambem sao objetivas, como:
+
+- "Aluno cadastrado com sucesso."
+- "Professor atualizado com sucesso."
+- "Ja existe aluno com este CPF ou matricula."
+- "Este aluno ja esta matriculado nessa disciplina."
+- "Matricula removida da interface. O registro continua no banco."
+
+Porem, ha alguns pontos de falta de padronizacao. Muitos textos aparecem sem acentuacao, como:
+
+- Sistema Academico
+- Gestao academica
+- Matriculas
+- Codigo
+- Area
+- Edicao
+- Relatorio
+- Vinculos
+- Nao encontrado
+
+Isso nao impede o uso do sistema, mas deixa a interface menos padronizada em portugues formal. O ideal seria usar acentos corretamente, como Sistema Academico com acentuacao, Gestao academica com acentuacao, Matriculas com acentuacao, Codigo com acentuacao e assim por diante.
+
+Tambem existem alguns textos que poderiam ser mais claros. Por exemplo, na tabela de disciplinas aparece apenas "Carga", enquanto no formulario aparece "Carga horaria". Para evitar ambiguidade, seria melhor usar "Carga horaria" em todos os lugares.
+
+Conclusao:
+Os textos estao em portugues e sao, em geral, compreensiveis, mas a padronizacao ainda pode melhorar. O principal ajuste seria corrigir a acentuacao, manter os mesmos nomes de campos em todas as telas e tornar alguns termos mais especificos, como trocar "Carga" por "Carga horaria". Assim, a interface ficaria mais profissional e menos ambigua.
+
+
+18- O projeto esta protegido contra usos inadequados basicos, como envio de formularios vazios ou valores invalidos?
+
+Resposta:
+Parcialmente. O projeto possui algumas protecoes basicas contra usos inadequados, mas ainda nao esta totalmente protegido contra todos os tipos de valores invalidos.
+
+Nos formularios HTML, os principais campos obrigatorios possuem o atributo required. Isso ajuda a impedir que o usuario envie formularios vazios pelo navegador. Tambem ha uma validacao simples no campo de carga horaria, usando type="number" e min="1", o que ajuda a impedir valores menores que 1 pela interface.
+
+No banco de dados, tambem existem protecoes importantes:
+
+- Campos obrigatorios com NOT NULL.
+- Campos unicos com UNIQUE.
+- Chaves estrangeiras entre tabelas relacionadas.
+- Restricao para evitar matricula duplicada do mesmo aluno na mesma disciplina.
+
+No app.py, o sistema tambem trata alguns erros, principalmente duplicidades, usando IntegrityError. Assim, quando o usuario tenta cadastrar CPF, matricula, registro ou codigo ja existente, o sistema exibe uma mensagem de alerta.
+
+Porem, a protecao ainda e limitada no backend. O sistema usa strip() em alguns campos, mas nao verifica completamente se o valor ficou vazio depois disso. Tambem nao valida formato de CPF, padrao de matricula, padrao de registro, tamanho minimo dos campos ou se os IDs enviados nos formularios realmente existem antes da tentativa de salvar.
+
+Outro ponto importante e que validacoes do HTML podem ser burladas, por exemplo enviando requisicoes diretamente para as rotas. Por isso, as validacoes mais importantes deveriam estar tambem no servidor, antes de executar INSERT ou UPDATE.
+
+Conclusao:
+O projeto possui protecoes basicas contra formularios vazios, duplicidades e algumas inconsistencias no banco. Mesmo assim, ele ainda nao esta totalmente protegido contra valores invalidos ou manipulacao direta das requisicoes. Para melhorar, seria recomendado adicionar validacoes no backend para campos vazios apos strip(), formatos invalidos, valores numericos fora do esperado e existencia dos registros relacionados.
+
+
+19- O sistema possui configuracoes adequadas para uso fora do ambiente de desenvolvimento, como chave secreta e modo debug desativado?
+
+Resposta:
+Parcialmente. O projeto ja possui algumas configuracoes pensadas para uso fora do ambiente local, mas ainda nao esta totalmente adequado para producao.
+
+Um ponto positivo e que a chave secreta do Flask pode ser configurada por variavel de ambiente:
+
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "sistema-academico-dev")
+
+Isso permite definir uma chave segura fora do codigo. Porem, se a variavel FLASK_SECRET_KEY nao for definida, o sistema usa a chave padrao "sistema-academico-dev", que e adequada apenas para desenvolvimento. Em producao, uma chave fixa e previsivel nao e recomendada.
+
+Outro ponto importante e que o arquivo app.py executa a aplicacao com:
+
+app.run(debug=True)
+
+Isso significa que o modo debug esta ativado quando o sistema e iniciado diretamente por esse arquivo. O modo debug nao deve ficar ativo em producao, pois pode expor informacoes internas da aplicacao e aumentar riscos de seguranca.
+
+O projeto tambem usa variaveis de ambiente para configuracoes do banco, como:
+
+- MYSQL_HOST
+- MYSQL_PORT
+- MYSQL_USER
+- MYSQL_PASSWORD
+- MYSQL_DATABASE
+- MYSQL_REQUIRED
+
+Isso e positivo, pois evita deixar todas as configuracoes fixas no codigo. A documentacao tambem orienta usar MYSQL_REQUIRED=1 em producao para obrigar o uso do MySQL e evitar depender do SQLite local.
+
+O arquivo .gitignore tambem ajuda, pois ignora arquivos como .env, bancos SQLite locais e relatorios gerados.
+
+Porem, ainda faltam alguns ajustes para producao:
+
+- Desativar debug=True.
+- Exigir FLASK_SECRET_KEY segura em producao.
+- Usar um servidor WSGI adequado, como gunicorn, em vez de app.run().
+- Garantir MYSQL_REQUIRED=1 fora do ambiente de desenvolvimento.
+- Separar claramente configuracoes de desenvolvimento e producao.
+- Evitar que o SQLite local seja usado acidentalmente em producao.
+
+Conclusao:
+O sistema tem uma base inicial para configuracoes fora do ambiente de desenvolvimento, principalmente por usar variaveis de ambiente. Mesmo assim, ainda nao esta totalmente adequado para producao, porque o modo debug esta ativado no app.py e existe uma chave secreta padrao de desenvolvimento. Antes de publicar, seria necessario desativar o debug, definir uma FLASK_SECRET_KEY segura e obrigar o uso do MySQL em producao.
+
+
+20- A equipe definiu quem ira aprovar a homologacao final e quais criterios precisam estar atendidos para liberar o uso do sistema?
+
+Resposta:
+Nao de forma completa. Ao analisar os arquivos do projeto, nao foi encontrada uma definicao clara de quem sera o responsavel por aprovar a homologacao final do sistema.
+
+O arquivo questoes.txt informa que o projeto possui 20 perguntas para homologar e preparar o Sistema Academico para uso, e tambem identifica o professor Felipe Douglas. Porem, isso nao define formalmente se o professor, a equipe, a secretaria ou outro responsavel ira aprovar a liberacao final.
+
+A documentacao possui algumas listas de validacao, principalmente nas secoes de validacoes realizadas e testes pos-deploy. Esses itens ajudam a indicar criterios importantes, como:
+
+- Sistema abrir corretamente.
+- Telas principais funcionarem.
+- Cadastro de aluno, professor e disciplina.
+- Matricula de aluno em disciplina.
+- Remocao logica de matricula.
+- Relatorios em JSON e PDF.
+- Conexao com banco de dados.
+- Configuracoes para ambiente fora do desenvolvimento.
+
+Mesmo assim, esses pontos ainda nao aparecem como uma lista oficial de criterios de aprovacao. Tambem nao existe um campo ou secao informando "aprovado por", "data da homologacao", "criterios obrigatorios" ou "responsavel pela liberacao".
+
+Conclusao:
+A equipe ainda nao definiu claramente quem ira aprovar a homologacao final nem quais criterios precisam estar obrigatoriamente atendidos para liberar o uso do sistema. Existem perguntas e checklists que ajudam na avaliacao, mas seria recomendado criar uma secao especifica de homologacao, informando o responsavel pela aprovacao, a data, os criterios minimos e o status final do sistema.

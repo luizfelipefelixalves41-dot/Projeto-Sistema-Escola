@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Editar aluno{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Edição</p>
+    <h1>Editar aluno</h1>
+  </div>
+</section>
+
+<form class="panel edit-panel" method="post">
+  <label>Nome<input name="nome" value="{{ aluno.nome }}" required></label>
+  <label>CPF<input name="cpf" value="{{ aluno.cpf }}" required></label>
+  <label>Matrícula<input name="matricula" value="{{ aluno.matricula }}" required></label>
+  <label>Curso<input name="curso" value="{{ aluno.curso }}" required></label>
+  <div class="form-actions">
+    <a class="button secondary" href="{{ url_for('alunos') }}">Cancelar</a>
+    <button type="submit">Salvar alteracoes</button>
+  </div>
+</form>
+{% endblock %}

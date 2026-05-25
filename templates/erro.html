@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Erro no banco{% endblock %}
+
+{% block content %}
+<section class="panel error-panel">
+  <h1>Não foi possível acessar o banco de dados</h1>
+  <p>O sistema web abriu corretamente, mas o MySQL não respondeu em <code>localhost:3306</code>.</p>
+  <p>Para corrigir, instale ou inicie o MySQL e crie o banco com o arquivo <code>schema.sql</code>.</p>
+  <ol class="steps">
+    <li>Instale o MySQL Community Server, caso ainda não esteja instalado.</li>
+    <li>Inicie o servico do MySQL.</li>
+    <li>Execute <code>mysql -u root -p &lt; schema.sql</code> dentro da pasta do projeto.</li>
+    <li>Se o usuario tiver senha, rode a aplicacao com <code>MYSQL_PASSWORD=sua_senha python3 app.py</code>.</li>
+  </ol>
+  <pre>{{ error }}</pre>
+</section>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Matrículas{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Vínculos</p>
+    <h1>Matrículas</h1>
+  </div>
+</section>
+
+<section class="grid">
+  <form class="panel form-panel" method="post">
+    <h2>Matricular aluno</h2>
+    <label>
+      Aluno
+      <select name="aluno_id" required>
+        <option value="">Selecione</option>
+        {% for aluno in alunos %}
+          <option value="{{ aluno.id }}">{{ aluno.nome }} - {{ aluno.matricula }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Disciplina
+      <select name="disciplina_id" required>
+        <option value="">Selecione</option>
+        {% for disciplina in disciplinas %}
+          <option value="{{ disciplina.id }}">{{ disciplina.nome }} - {{ disciplina.codigo }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Matricular</button>
+  </form>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Matrículas realizadas</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Matrícula</th>
+            <th>Disciplina</th>
+            <th>Código</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for matricula in matriculas %}
+            <tr>
+              <td data-label="Aluno">{{ matricula.aluno }}</td>
+              <td data-label="Matrícula">{{ matricula.matricula }}</td>
+              <td data-label="Disciplina">{{ matricula.disciplina }}</td>
+              <td data-label="Código">{{ matricula.codigo }}</td>
+              <td data-label="Ações">
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('editar_matricula', matricula_id=matricula.id) }}">Editar</a>
+                  <form class="inline-form" method="post" action="{{ url_for('excluir_matricula', matricula_id=matricula.id) }}">
+                  <button class="ghost" type="submit">Remover</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="empty">Nenhuma matrícula realizada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

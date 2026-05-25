@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Editar disciplina{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Edição</p>
+    <h1>Editar disciplina</h1>
+  </div>
+</section>
+
+<form class="panel edit-panel" method="post">
+  <label>Nome<input name="nome" value="{{ disciplina.nome }}" required></label>
+  <label>Código<input name="codigo" value="{{ disciplina.codigo }}" required></label>
+  <label>Carga horária<input name="carga_horaria" type="number" min="1" value="{{ disciplina.carga_horaria }}" required></label>
+  <label>
+    Professor
+    <select name="professor_id">
+      <option value="">Sem professor</option>
+      {% for professor in professores %}
+        <option value="{{ professor.id }}" {% if disciplina.professor_id == professor.id %}selected{% endif %}>{{ professor.nome }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="form-actions">
+    <a class="button secondary" href="{{ url_for('disciplinas') }}">Cancelar</a>
+    <button type="submit">Salvar alteracoes</button>
+  </div>
+</form>
+{% endblock %}

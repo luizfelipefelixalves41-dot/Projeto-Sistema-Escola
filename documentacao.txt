@@ -1,0 +1,866 @@
+DOCUMENTACAO DO SISTEMA ACADEMICO
+
+1. OBJETIVO DO PROJETO
+
+Este projeto e um prototipo simples de um sistema academico desenvolvido em
+Python com base nos conceitos de orientacao a objetos.
+
+O sistema representa alunos, professores, disciplinas e uma estrutura central
+responsavel por cadastrar e relacionar essas informacoes.
+
+
+2. ARQUIVOS DO PROJETO
+
+O codigo foi dividido nos seguintes arquivos:
+
+- Pessoa.py
+  Contem a classe Pessoa, que representa uma pessoa generica do sistema.
+
+- Aluno.py
+  Contem a classe Aluno, que herda da classe Pessoa.
+
+- Professor.py
+  Contem a classe Professor, que tambem herda da classe Pessoa.
+
+- Disciplina.py
+  Contem a classe Disciplina, responsavel por armazenar dados da disciplina,
+  seu professor e seus alunos matriculados.
+
+- Sistema_academico.py
+  Contem a classe SistemaAcademico e a funcao main, que executa o exemplo
+  principal do programa.
+
+- app.py
+  Contem a aplicacao web em Flask, com rotas para painel, alunos,
+  professores, disciplinas, matriculas e relatorios.
+
+- db.py
+  Contem as funcoes de conexao com banco de dados. O sistema tenta usar MySQL
+  e, se ele nao estiver disponivel, utiliza um banco SQLite local para permitir
+  o uso da interface.
+
+- relatorios.py
+  Contem as funcoes responsaveis por gerar relatorios nos formatos JSON e PDF.
+
+- schema.sql
+  Contem os comandos SQL para criar o banco MySQL, as tabelas e os dados
+  iniciais.
+
+- templates/
+  Pasta com as paginas HTML da interface web.
+
+- static/styles.css
+  Arquivo de estilos visuais da interface web.
+
+
+3. CONCEITOS DE ORIENTACAO A OBJETOS UTILIZADOS
+
+3.1 Classe
+
+Classe e um modelo usado para criar objetos. Neste projeto foram criadas as
+classes Pessoa, Aluno, Professor, Disciplina e SistemaAcademico.
+
+3.2 Objeto
+
+Objeto e uma instancia de uma classe. Por exemplo:
+
+professor = Professor(...)
+aluno_1 = Aluno(...)
+disciplina = Disciplina(...)
+
+3.3 Heranca
+
+A heranca permite que uma classe reaproveite atributos e metodos de outra.
+Neste projeto, Aluno e Professor herdam de Pessoa.
+
+Pessoa possui os atributos nome e cpf. Como Aluno e Professor tambem sao
+pessoas, essas classes reutilizam esses atributos por meio da heranca.
+
+3.4 Encapsulamento
+
+Cada classe organiza seus proprios dados e comportamentos. Por exemplo, a
+classe Disciplina controla sua lista de alunos e o professor responsavel.
+
+3.5 Associacao entre objetos
+
+O sistema tambem usa associacao entre objetos:
+
+- Um Aluno pode estar associado a varias disciplinas.
+- Um Professor pode estar associado a varias disciplinas.
+- Uma Disciplina possui um professor e uma lista de alunos.
+
+
+4. CLASSE PESSOA
+
+Arquivo: Pessoa.py
+
+A classe Pessoa representa uma pessoa generica do sistema.
+
+Atributos:
+
+- nome
+  Armazena o nome da pessoa.
+
+- cpf
+  Armazena o CPF da pessoa.
+
+Metodos:
+
+- __init__(self, nome, cpf)
+  Metodo construtor da classe. Ele recebe nome e cpf e armazena esses valores
+  no objeto.
+
+- __str__(self)
+  Retorna uma representacao textual da pessoa, exibindo nome e CPF.
+
+Exemplo de uso:
+
+pessoa = Pessoa("Joao", "123.456.789-00")
+print(pessoa)
+
+
+5. CLASSE ALUNO
+
+Arquivo: Aluno.py
+
+A classe Aluno representa um aluno do sistema academico.
+
+Heranca:
+
+Aluno herda da classe Pessoa. Por isso, todo aluno possui nome e cpf.
+
+Atributos:
+
+- nome
+  Herdado de Pessoa.
+
+- cpf
+  Herdado de Pessoa.
+
+- matricula
+  Armazena o numero de matricula do aluno.
+
+- curso
+  Armazena o curso ao qual o aluno pertence.
+
+- disciplinas
+  Lista que armazena as disciplinas em que o aluno esta matriculado.
+
+Metodos:
+
+- __init__(self, nome, cpf, matricula, curso)
+  Metodo construtor da classe. Ele chama o construtor da classe Pessoa usando
+  super() e depois inicializa matricula, curso e disciplinas.
+
+- adicionar_disciplina(self, disciplina)
+  Adiciona uma disciplina a lista de disciplinas do aluno. Antes de adicionar,
+  verifica se a disciplina ainda nao esta na lista, evitando duplicidade.
+
+- listar_disciplinas(self)
+  Retorna uma string com o nome das disciplinas do aluno. Se o aluno nao tiver
+  disciplinas, retorna a mensagem "Nenhuma disciplina matriculada.".
+
+- remover_dados(self)
+  Desativa o aluno em memoria, desfazendo seus vinculos com disciplinas e
+  limpando a lista de disciplinas, mas preservando nome, CPF, matricula e
+  curso para manter historico.
+
+- __str__(self)
+  Retorna uma representacao textual do aluno, exibindo nome, CPF, matricula e
+  curso.
+
+Exemplo de uso:
+
+aluno = Aluno("Felipe Santos", "555.666.777-88", "2026001", "Sistemas de Informacao")
+print(aluno)
+
+
+6. CLASSE PROFESSOR
+
+Arquivo: Professor.py
+
+A classe Professor representa um professor do sistema academico.
+
+Heranca:
+
+Professor herda da classe Pessoa. Por isso, todo professor possui nome e cpf.
+
+Atributos:
+
+- nome
+  Herdado de Pessoa.
+
+- cpf
+  Herdado de Pessoa.
+
+- registro
+  Armazena o registro profissional ou institucional do professor.
+
+- area
+  Armazena a area de atuacao do professor.
+
+- disciplinas
+  Lista que armazena as disciplinas atribuidas ao professor.
+
+Metodos:
+
+- __init__(self, nome, cpf, registro, area)
+  Metodo construtor da classe. Ele chama o construtor da classe Pessoa usando
+  super() e depois inicializa registro, area e disciplinas.
+
+- adicionar_disciplina(self, disciplina)
+  Adiciona uma disciplina a lista de disciplinas do professor. Antes de
+  adicionar, verifica se a disciplina ainda nao esta na lista.
+
+- listar_disciplinas(self)
+  Retorna uma string com o nome das disciplinas do professor. Se o professor
+  nao tiver disciplinas, retorna a mensagem "Nenhuma disciplina atribuida.".
+
+- __str__(self)
+  Retorna uma representacao textual do professor, exibindo nome, CPF, registro
+  e area.
+
+Exemplo de uso:
+
+professor = Professor("Mariana Souza", "111.222.333-44", "PROF001", "Programacao")
+print(professor)
+
+
+7. CLASSE DISCIPLINA
+
+Arquivo: Disciplina.py
+
+A classe Disciplina representa uma disciplina academica.
+
+Atributos:
+
+- nome
+  Armazena o nome da disciplina.
+
+- codigo
+  Armazena o codigo identificador da disciplina.
+
+- carga_horaria
+  Armazena a carga horaria da disciplina.
+
+- professor
+  Armazena o professor responsavel pela disciplina. Inicialmente pode ser None.
+
+- alunos
+  Lista que armazena os alunos matriculados na disciplina.
+
+Metodos:
+
+- __init__(self, nome, codigo, carga_horaria, professor=None)
+  Metodo construtor da classe. Inicializa nome, codigo, carga_horaria,
+  professor e alunos. Se um professor for informado na criacao da disciplina,
+  o metodo definir_professor e chamado automaticamente.
+
+- definir_professor(self, professor)
+  Define o professor responsavel pela disciplina. Alem disso, tambem adiciona
+  essa disciplina a lista de disciplinas do professor.
+
+- matricular_aluno(self, aluno)
+  Matricula um aluno na disciplina. O metodo adiciona o aluno a lista de alunos
+  da disciplina e tambem adiciona a disciplina a lista de disciplinas do aluno.
+  Antes disso, verifica se o aluno ainda nao esta matriculado, evitando
+  duplicidade.
+
+- listar_alunos(self)
+  Retorna uma string com o nome dos alunos matriculados na disciplina. Se nao
+  houver alunos, retorna a mensagem "Nenhum aluno matriculado.".
+
+- __str__(self)
+  Retorna uma representacao textual da disciplina, exibindo nome, codigo,
+  carga horaria e professor.
+
+Exemplo de uso:
+
+disciplina = Disciplina("Programacao Orientada a Objetos", "POO101", 80, professor)
+print(disciplina)
+
+
+8. CLASSE SISTEMAACADEMICO
+
+Arquivo: Sistema_academico.py
+
+A classe SistemaAcademico centraliza o gerenciamento de alunos, professores e
+disciplinas.
+
+Atributos:
+
+- alunos
+  Lista que armazena todos os alunos cadastrados.
+
+- professores
+  Lista que armazena todos os professores cadastrados.
+
+- disciplinas
+  Lista que armazena todas as disciplinas cadastradas.
+
+Metodos:
+
+- __init__(self)
+  Metodo construtor da classe. Inicializa as listas alunos, professores e
+  disciplinas.
+
+- cadastrar_aluno(self, aluno)
+  Adiciona um objeto Aluno a lista de alunos do sistema.
+
+- cadastrar_professor(self, professor)
+  Adiciona um objeto Professor a lista de professores do sistema.
+
+- cadastrar_disciplina(self, disciplina)
+  Adiciona um objeto Disciplina a lista de disciplinas do sistema.
+
+- buscar_aluno_por_matricula(self, matricula)
+  Procura um aluno pela matricula. Se encontrar, retorna o objeto Aluno. Se nao
+  encontrar, retorna None.
+
+- pesquisar_alunos_por_nome(self, nome)
+  Procura alunos pelo nome ou por parte do nome. A pesquisa ignora diferencas
+  entre letras maiusculas e minusculas. Se o campo estiver vazio, retorna todos
+  os alunos cadastrados.
+
+- buscar_professor_por_registro(self, registro)
+  Procura um professor pelo registro. Se encontrar, retorna o objeto Professor.
+  Se nao encontrar, retorna None.
+
+- buscar_disciplina_por_codigo(self, codigo)
+  Procura uma disciplina pelo codigo. Se encontrar, retorna o objeto
+  Disciplina. Se nao encontrar, retorna None.
+
+- matricular_aluno_em_disciplina(self, matricula, codigo_disciplina)
+  Procura o aluno pela matricula e a disciplina pelo codigo. Se ambos forem
+  encontrados, matricula o aluno na disciplina. Caso o aluno ou a disciplina
+  nao existam, exibe uma mensagem de erro.
+
+- listar_alunos(self)
+  Exibe todos os alunos cadastrados e suas disciplinas.
+
+- listar_professores(self)
+  Exibe todos os professores cadastrados e suas disciplinas.
+
+- listar_disciplinas(self)
+  Exibe todas as disciplinas cadastradas e seus alunos matriculados.
+
+- gerar_dados_relatorio(self)
+  Organiza os dados de alunos, professores, disciplinas e matriculas em uma
+  estrutura propria para relatorios.
+
+- gerar_relatorio_json(self, caminho="relatorio_academico.json")
+  Gera um arquivo JSON com os dados do sistema academico.
+
+- gerar_relatorio_pdf(self, caminho="relatorio_academico.pdf")
+  Gera um arquivo PDF com os dados do sistema academico.
+
+
+9. FUNCAO MAIN
+
+Arquivo: Sistema_academico.py
+
+A funcao main e o ponto principal de execucao do programa.
+
+Ela realiza os seguintes passos:
+
+1. Cria um objeto SistemaAcademico.
+2. Cria um professor.
+3. Cria dois alunos.
+4. Cria uma disciplina com professor definido.
+5. Cadastra o professor no sistema.
+6. Cadastra os alunos no sistema.
+7. Cadastra a disciplina no sistema.
+8. Matricula os alunos na disciplina.
+9. Lista professores, alunos e disciplinas.
+
+
+10. FLUXO DE EXECUCAO
+
+O programa deve ser executado pelo arquivo Sistema_academico.py:
+
+python3 Sistema_academico.py
+
+Quando executado, o Python verifica esta parte do codigo:
+
+if __name__ == "__main__":
+    main()
+
+Isso significa que a funcao main sera chamada somente quando o arquivo
+Sistema_academico.py for executado diretamente.
+
+
+11. RELACIONAMENTO ENTRE AS CLASSES
+
+Pessoa
+  Classe base com nome e cpf.
+
+Aluno
+  Herda de Pessoa e adiciona matricula, curso e disciplinas.
+
+Professor
+  Herda de Pessoa e adiciona registro, area e disciplinas.
+
+Disciplina
+  Possui nome, codigo, carga_horaria, professor e alunos.
+
+SistemaAcademico
+  Gerencia colecoes de alunos, professores e disciplinas.
+
+
+12. EXEMPLO DE SAIDA DO PROGRAMA
+
+Ao executar o sistema, a saida esperada e semelhante a:
+
+Felipe Santos foi matriculado em Programacao Orientada a Objetos.
+Ana Lima foi matriculado em Programacao Orientada a Objetos.
+
+PROFESSORES
+Professor: Mariana Souza | CPF: 111.222.333-44 | Registro: PROF001 | Area: Programacao
+Disciplinas: Programacao Orientada a Objetos
+
+ALUNOS
+Aluno: Felipe Santos | CPF: 555.666.777-88 | Matricula: 2026001 | Curso: Sistemas de Informacao
+Disciplinas: Programacao Orientada a Objetos
+Aluno: Ana Lima | CPF: 999.888.777-66 | Matricula: 2026002 | Curso: Ciencia da Computacao
+Disciplinas: Programacao Orientada a Objetos
+
+DISCIPLINAS
+Disciplina: Programacao Orientada a Objetos | Codigo: POO101 | Carga horaria: 80h | Professor: Mariana Souza
+Alunos: Felipe Santos, Ana Lima
+
+
+13. CONSIDERACOES FINAIS
+
+Este prototipo demonstra os principais conceitos de orientacao a objetos em
+Python:
+
+- Criacao de classes.
+- Criacao de objetos.
+- Uso de atributos.
+- Uso de metodos.
+- Heranca entre Pessoa, Aluno e Professor.
+- Associacao entre Aluno, Professor e Disciplina.
+- Organizacao do sistema em multiplos arquivos.
+
+O sistema pode ser expandido futuramente com novas funcionalidades, como
+remocao de alunos, alteracao de dados, cadastro via menu interativo,
+persistencia em arquivo ou banco de dados e validacao de informacoes.
+
+
+14. ATUALIZACOES REALIZADAS EM 01/05/2026
+
+Nesta data, o sistema foi expandido de um prototipo executado pelo terminal
+para uma aplicacao com interface web, persistencia de dados e relatorios.
+
+14.1 Interface web
+
+Foi criada uma interface web usando Flask. A interface possui:
+
+- Painel inicial com totais de alunos, professores, disciplinas e matriculas.
+- Tela para cadastrar e listar alunos.
+- Tela para cadastrar e listar professores.
+- Tela para cadastrar e listar disciplinas.
+- Tela para matricular alunos em disciplinas.
+- Tela para listar matriculas realizadas.
+- Navegacao superior entre as principais areas do sistema.
+
+Arquivos relacionados:
+
+- app.py
+- templates/base.html
+- templates/index.html
+- templates/alunos.html
+- templates/professores.html
+- templates/disciplinas.html
+- templates/matriculas.html
+- static/styles.css
+
+14.2 Banco de dados
+
+Foi adicionada persistencia em banco de dados.
+
+O sistema foi preparado para usar MySQL com as seguintes tabelas:
+
+- alunos
+- professores
+- disciplinas
+- matriculas
+
+O arquivo schema.sql cria o banco sistema_academico, as tabelas, os
+relacionamentos e alguns dados iniciais.
+
+Como o MySQL nao estava disponivel na maquina durante os testes, tambem foi
+adicionado um modo automatico com SQLite local. Assim, a aplicacao continua
+funcionando mesmo sem um servidor MySQL ativo.
+
+Arquivo relacionado:
+
+- db.py
+
+Funcoes principais adicionadas em db.py:
+
+- get_connection()
+  Abre uma conexao com o banco em uso.
+
+- fetch_all(query, params=None)
+  Executa uma consulta e retorna varias linhas.
+
+- fetch_one(query, params=None)
+  Executa uma consulta e retorna uma unica linha.
+
+- execute(query, params=None)
+  Executa comandos de escrita, como INSERT, UPDATE e DELETE.
+
+- database_label()
+  Informa qual banco esta sendo usado pela aplicacao.
+
+14.3 Remocao logica de matriculas
+
+O botao Remover da tela de matriculas foi ajustado para nao apagar os dados
+do banco.
+
+Antes, a remocao usava DELETE. Agora, a matricula recebe:
+
+- ativo = 0
+- removido_em = data e hora da remocao
+
+Com isso:
+
+- A matricula removida deixa de aparecer na interface.
+- O registro continua armazenado no banco de dados.
+- Se o mesmo aluno for matriculado novamente na mesma disciplina, a matricula
+  antiga e reativada.
+
+14.4 Relatorios em JSON e PDF
+
+Foi criada a geracao de relatorios em dois formatos:
+
+- JSON
+- PDF
+
+No arquivo Sistema_academico.py foram adicionados os metodos:
+
+- gerar_dados_relatorio(self)
+  Monta uma estrutura com alunos, professores, disciplinas e matriculas.
+
+- gerar_relatorio_json(self, caminho="relatorio_academico.json")
+  Gera o arquivo relatorio_academico.json.
+
+- gerar_relatorio_pdf(self, caminho="relatorio_academico.pdf")
+  Gera o arquivo relatorio_academico.pdf.
+
+Tambem foi criado o arquivo relatorios.py, com funcoes reutilizaveis:
+
+- gerar_relatorio_json(dados, caminho=None)
+  Converte os dados para JSON e, se um caminho for informado, grava o arquivo.
+
+- gerar_relatorio_pdf(dados, caminho=None)
+  Cria um PDF simples com os dados do sistema e, se um caminho for informado,
+  grava o arquivo.
+
+Na interface web, foram adicionadas as rotas:
+
+- /relatorios/json
+  Baixa o relatorio em JSON com os dados atuais do banco.
+
+- /relatorios/pdf
+  Baixa o relatorio em PDF com os dados atuais do banco.
+
+No painel inicial foram adicionados botoes para baixar os relatorios.
+
+14.5 Tratamento de erros e validacoes
+
+Foram adicionadas mensagens amigaveis para:
+
+- Aluno com CPF ou matricula ja cadastrados.
+- Professor com CPF ou registro ja cadastrados.
+- Disciplina com codigo ja cadastrado.
+- Aluno ja matriculado na disciplina.
+- Erro de conexao com banco de dados.
+
+Tambem foi criada uma tela especifica para erro de banco, explicando que o
+MySQL precisa estar instalado, iniciado e com o banco criado pelo schema.sql.
+
+14.6 Dependencias e execucao
+
+Foi criado o arquivo requirements.txt com as dependencias da aplicacao web:
+
+- Flask
+- mysql-connector-python
+
+Tambem foi criado o arquivo README.md com instrucoes para:
+
+- Criar o banco MySQL.
+- Instalar dependencias.
+- Configurar variaveis de ambiente.
+- Executar a aplicacao.
+- Usar o modo SQLite local.
+
+14.7 Validacoes realizadas
+
+Durante a implementacao, foram realizados testes para verificar:
+
+- Sintaxe dos arquivos Python.
+- Importacao da aplicacao Flask.
+- Abertura da pagina inicial.
+- Abertura das telas de alunos, professores, disciplinas e matriculas.
+- Funcionamento da remocao logica de matriculas.
+- Geracao do arquivo JSON.
+- Geracao do arquivo PDF.
+- Download dos relatorios pela interface web.
+
+
+15. PROXIMAS ETAPAS PARA HOSPEDAGEM NA AWS COM CODEPIPELINE
+
+Esta secao descreve um plano faseado para publicar a aplicacao web na AWS
+usando CodePipeline. O objetivo e sair do ambiente local e chegar a uma
+implantacao automatizada, versionada e com banco de dados gerenciado.
+
+15.1 Fase 1 - Preparacao do projeto
+
+Objetivo:
+
+Preparar o projeto para rodar fora do computador local.
+
+Atividades:
+
+- Garantir que todo o codigo esteja no GitHub.
+- Confirmar que o repositorio remoto esta atualizado.
+- Remover arquivos que nao devem ir para producao, como banco SQLite local,
+  relatorios gerados e caches.
+- Manter o arquivo .gitignore atualizado.
+- Definir variaveis de ambiente usadas pela aplicacao:
+  - MYSQL_HOST
+  - MYSQL_PORT
+  - MYSQL_USER
+  - MYSQL_PASSWORD
+  - MYSQL_DATABASE
+  - FLASK_SECRET_KEY
+- Ajustar a aplicacao para nao depender do modo debug em producao.
+- Definir o comando de inicializacao da aplicacao web.
+
+Resultado esperado:
+
+Repositorio limpo, versionado e pronto para ser usado como origem do pipeline.
+
+15.2 Fase 2 - Escolha da arquitetura de hospedagem
+
+Objetivo:
+
+Definir onde a aplicacao Flask sera executada na AWS.
+
+Opcao recomendada para este projeto:
+
+- AWS Elastic Beanstalk com ambiente Python.
+
+Motivos:
+
+- E mais simples para publicar aplicacoes Flask.
+- Gerencia servidor, deploy e balanceamento de forma mais automatizada.
+- Integra bem com CodePipeline.
+
+Alternativas possiveis:
+
+- EC2 com CodeDeploy.
+- ECS com container Docker.
+- App Runner.
+
+Para uma primeira publicacao academica, Elastic Beanstalk e o caminho mais
+simples.
+
+15.3 Fase 3 - Banco de dados em producao
+
+Objetivo:
+
+Substituir o banco local por um banco gerenciado na AWS.
+
+Servico recomendado:
+
+- Amazon RDS for MySQL.
+
+Atividades:
+
+- Criar uma instancia RDS MySQL.
+- Criar o banco sistema_academico.
+- Executar o arquivo schema.sql no banco RDS.
+- Configurar usuario e senha do banco.
+- Liberar acesso entre a aplicacao e o RDS usando Security Groups.
+- Guardar dados sensiveis como senha em variaveis de ambiente ou AWS Secrets
+  Manager.
+
+Resultado esperado:
+
+Banco MySQL acessivel pela aplicacao hospedada, sem depender do SQLite local.
+
+15.4 Fase 4 - Configuracao do Elastic Beanstalk
+
+Objetivo:
+
+Criar o ambiente onde a aplicacao Flask sera executada.
+
+Atividades:
+
+- Criar uma aplicacao no Elastic Beanstalk.
+- Selecionar plataforma Python.
+- Configurar as variaveis de ambiente do banco:
+  - MYSQL_HOST com o endpoint do RDS.
+  - MYSQL_PORT com 3306.
+  - MYSQL_USER com o usuario do banco.
+  - MYSQL_PASSWORD com a senha do banco.
+  - MYSQL_DATABASE com sistema_academico.
+  - MYSQL_REQUIRED com 1, para obrigar o uso do MySQL em producao.
+  - FLASK_SECRET_KEY com uma chave segura.
+- Configurar logs da aplicacao.
+- Testar deploy manual inicial antes de automatizar o pipeline.
+
+Resultado esperado:
+
+Aplicacao Flask publicada em uma URL do Elastic Beanstalk.
+
+15.5 Fase 5 - Arquivos necessarios para deploy
+
+Objetivo:
+
+Adicionar ao repositorio os arquivos esperados pelo ambiente de hospedagem.
+
+Arquivos recomendados:
+
+- requirements.txt
+  Ja existe e lista as dependencias Python.
+
+- application.py
+  Pode ser criado para expor a variavel application usada pelo Elastic
+  Beanstalk. Exemplo:
+
+  from app import app as application
+
+- Procfile
+  Pode ser usado para informar o comando de execucao. Exemplo:
+
+  web: gunicorn application:application
+
+- requirements.txt
+  Deve incluir gunicorn para execucao em producao.
+
+Resultado esperado:
+
+Repositorio com estrutura adequada para deploy Python na AWS.
+
+15.6 Fase 6 - Criacao do CodePipeline
+
+Objetivo:
+
+Automatizar o fluxo de entrega da aplicacao.
+
+Etapas do pipeline:
+
+1. Source
+   Origem do codigo no GitHub.
+
+2. Build
+   Etapa opcional usando CodeBuild para instalar dependencias, validar sintaxe
+   e executar testes.
+
+3. Deploy
+   Publicacao no Elastic Beanstalk.
+
+Atividades:
+
+- Criar um pipeline no AWS CodePipeline.
+- Conectar o GitHub como origem.
+- Selecionar a branch main.
+- Criar ou selecionar um projeto CodeBuild.
+- Configurar o destino como Elastic Beanstalk.
+- Definir permissoes IAM para CodePipeline, CodeBuild e Elastic Beanstalk.
+
+Resultado esperado:
+
+Cada push na branch main inicia automaticamente o processo de deploy.
+
+15.7 Fase 7 - Configuracao do CodeBuild
+
+Objetivo:
+
+Validar o projeto antes do deploy.
+
+Arquivo recomendado:
+
+- buildspec.yml
+
+Exemplo de etapas:
+
+- Instalar dependencias com pip.
+- Verificar sintaxe dos arquivos Python.
+- Executar testes, quando forem criados.
+- Empacotar a aplicacao para deploy.
+
+Comandos sugeridos:
+
+- python -m pip install -r requirements.txt
+- python -m py_compile app.py db.py relatorios.py Sistema_academico.py
+
+Resultado esperado:
+
+Deploy so continua se a aplicacao passar pelas verificacoes basicas.
+
+15.8 Fase 8 - Seguranca e configuracoes sensiveis
+
+Objetivo:
+
+Evitar que senhas e dados sensiveis fiquem expostos no codigo.
+
+Atividades:
+
+- Nunca salvar senha do banco no GitHub.
+- Usar variaveis de ambiente no Elastic Beanstalk.
+- Usar Security Groups para permitir que somente a aplicacao acesse o RDS.
+- Criar usuarios IAM com permissoes minimas.
+- Considerar AWS Secrets Manager para armazenar credenciais.
+- Ativar HTTPS usando certificado no AWS Certificate Manager.
+
+Resultado esperado:
+
+Aplicacao publicada com configuracoes mais seguras.
+
+15.9 Fase 9 - Testes pos-deploy
+
+Objetivo:
+
+Validar se a aplicacao publicada esta funcionando corretamente.
+
+Checklist:
+
+- Acessar a URL publica do Elastic Beanstalk.
+- Cadastrar aluno.
+- Cadastrar professor.
+- Cadastrar disciplina.
+- Matricular aluno em disciplina.
+- Remover matricula da interface e verificar se ela continua no banco com
+  ativo = 0.
+- Baixar relatorio em JSON.
+- Baixar relatorio em PDF.
+- Verificar logs da aplicacao.
+- Confirmar conexao com o RDS MySQL.
+
+Resultado esperado:
+
+Aplicacao validada em ambiente AWS.
+
+15.10 Fase 10 - Melhorias futuras para producao
+
+Objetivo:
+
+Evoluir o projeto para um ambiente mais robusto.
+
+Melhorias recomendadas:
+
+- Criar testes automatizados.
+- Adicionar autenticacao de usuarios.
+- Criar controle de permissoes por perfil.
+- Criar migrations para evolucao do banco.
+- Adicionar pagina de edicao e exclusao logica para outros cadastros.
+- Configurar monitoramento com CloudWatch.
+- Configurar dominio proprio.
+- Configurar HTTPS.
+- Separar ambiente de desenvolvimento e producao.
+- Criar backup automatico do RDS.

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Professores{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Cadastro</p>
+    <h1>Professores</h1>
+  </div>
+</section>
+
+<section class="grid">
+  <form class="panel form-panel" method="post">
+    <h2>Novo professor</h2>
+    <label>Nome<input name="nome" required></label>
+    <label>CPF<input name="cpf" required></label>
+    <label>Registro<input name="registro" required></label>
+    <label>Área<input name="area" required></label>
+    <button type="submit">Cadastrar professor</button>
+  </form>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Professores cadastrados</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Registro</th>
+            <th>Área</th>
+            <th>Disciplinas</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for professor in professores %}
+            <tr>
+              <td data-label="Nome">{{ professor.nome }}</td>
+              <td data-label="CPF">{{ professor.cpf }}</td>
+              <td data-label="Registro">{{ professor.registro }}</td>
+              <td data-label="Área">{{ professor.area }}</td>
+              <td data-label="Disciplinas">{{ professor.disciplinas or 'Nenhuma disciplina atribuída.' }}</td>
+              <td data-label="Ações"><a class="ghost-link" href="{{ url_for('editar_professor', professor_id=professor.id) }}">Editar</a></td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="empty">Nenhum professor cadastrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

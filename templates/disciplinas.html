@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Disciplinas{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Cadastro</p>
+    <h1>Disciplinas</h1>
+  </div>
+</section>
+
+<section class="grid">
+  <form class="panel form-panel" method="post">
+    <h2>Nova disciplina</h2>
+    <label>Nome<input name="nome" required></label>
+    <label>Código<input name="codigo" required></label>
+    <label>Carga horária<input name="carga_horaria" type="number" min="1" required></label>
+    <label>
+      Professor
+      <select name="professor_id">
+        <option value="">Sem professor</option>
+        {% for professor in professores %}
+          <option value="{{ professor.id }}">{{ professor.nome }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Cadastrar disciplina</button>
+  </form>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Disciplinas cadastradas</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Professor</th>
+            <th>Carga horária</th>
+            <th>Alunos</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for disciplina in disciplinas %}
+            <tr>
+              <td data-label="Código">{{ disciplina.codigo }}</td>
+              <td data-label="Nome">{{ disciplina.nome }}</td>
+              <td data-label="Professor">{{ disciplina.professor }}</td>
+              <td data-label="Carga horária">{{ disciplina.carga_horaria }}h</td>
+              <td data-label="Alunos">{{ disciplina.total_alunos }}</td>
+              <td data-label="Ações"><a class="ghost-link" href="{{ url_for('editar_disciplina', disciplina_id=disciplina.id) }}">Editar</a></td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="empty">Nenhuma disciplina cadastrada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

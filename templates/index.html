@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Painel</p>
+    <h1>Gestão acadêmica</h1>
+    <p class="database-note">Banco em uso: {{ database_label }}</p>
+  </div>
+  <div class="actions">
+    <a class="button" href="{{ url_for('baixar_relatorio_pdf') }}">Relatório PDF</a>
+    <a class="button secondary" href="{{ url_for('baixar_relatorio_json') }}">Relatório JSON</a>
+  </div>
+</section>
+
+<section class="stats">
+  <article>
+    <span>{{ counts.alunos }}</span>
+    <p>Alunos</p>
+  </article>
+  <article>
+    <span>{{ counts.professores }}</span>
+    <p>Professores</p>
+  </article>
+  <article>
+    <span>{{ counts.disciplinas }}</span>
+    <p>Disciplinas</p>
+  </article>
+  <article>
+    <span>{{ counts.matriculas }}</span>
+    <p>Matrículas</p>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Disciplinas ativas</h2>
+    <a class="button" href="{{ url_for('disciplinas') }}">Nova disciplina</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Disciplina</th>
+          <th>Professor</th>
+          <th>Carga horária</th>
+          <th>Alunos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for disciplina in disciplinas %}
+          <tr>
+            <td data-label="Código">{{ disciplina.codigo }}</td>
+            <td data-label="Disciplina">{{ disciplina.nome }}</td>
+            <td data-label="Professor">{{ disciplina.professor }}</td>
+            <td data-label="Carga horária">{{ disciplina.carga_horaria }}h</td>
+            <td data-label="Alunos">{{ disciplina.total_alunos }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="empty">Nenhuma disciplina cadastrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
