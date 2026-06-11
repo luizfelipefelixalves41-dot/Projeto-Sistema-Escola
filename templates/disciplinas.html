@@ -30,7 +30,14 @@
 
   <div class="panel">
     <div class="panel-header">
-      <h2>Disciplinas cadastradas</h2>
+      <h2>Disciplinas ativas</h2>
+      <form class="search-form" method="get">
+        <input name="pesquisa" placeholder="Pesquisar por nome" value="{{ pesquisa }}">
+        <button type="submit">Pesquisar</button>
+        {% if pesquisa %}
+          <a class="ghost-link" href="{{ url_for('disciplinas') }}">Limpar</a>
+        {% endif %}
+      </form>
     </div>
     <div class="table-wrap">
       <table>
@@ -41,7 +48,7 @@
             <th>Professor</th>
             <th>Carga horária</th>
             <th>Alunos</th>
-            <th></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -52,7 +59,14 @@
               <td data-label="Professor">{{ disciplina.professor }}</td>
               <td data-label="Carga horária">{{ disciplina.carga_horaria }}h</td>
               <td data-label="Alunos">{{ disciplina.total_alunos }}</td>
-              <td data-label="Ações"><a class="ghost-link" href="{{ url_for('editar_disciplina', disciplina_id=disciplina.id) }}">Editar</a></td>
+              <td data-label="Ações">
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('editar_disciplina', disciplina_id=disciplina.id) }}">Editar</a>
+                  <form class="inline-form" method="post" action="{{ url_for('arquivar_disciplina', disciplina_id=disciplina.id) }}">
+                    <button class="ghost danger" type="submit">Arquivar</button>
+                  </form>
+                </div>
+              </td>
             </tr>
           {% else %}
             <tr><td colspan="6" class="empty">Nenhuma disciplina cadastrada.</td></tr>
@@ -60,6 +74,7 @@
         </tbody>
       </table>
     </div>
+    {% include "_pagination.html" %}
   </div>
 </section>
 {% endblock %}

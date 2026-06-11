@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Bem-vindo{% endblock %}
+
+{% block content %}
+<section class="entry-hero">
+  <div class="entry-copy">
+    <p class="eyebrow">Portal escolar</p>
+    <h1>Bem-vindo ao site escolar</h1>
+    <p>
+      Escolha uma área para acessar rapidamente os conteúdos e cadastros do
+      sistema acadêmico.
+    </p>
+    <div class="actions">
+      <a class="button" href="{{ url_for('alunos') }}">Entrar como aluno</a>
+      <a class="button secondary" href="{{ url_for('professores') }}">Entrar como professor</a>
+    </div>
+  </div>
+
+  <div class="entry-board" aria-label="Resumo visual do portal escolar">
+    <div class="entry-board-header">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="entry-board-grid">
+      <a href="{{ url_for('painel') }}">
+        <strong>Painel</strong>
+        <small>Resumo geral</small>
+      </a>
+      <a href="{{ url_for('disciplinas') }}">
+        <strong>Disciplinas</strong>
+        <small>Matérias e cargas</small>
+      </a>
+      <a href="{{ url_for('matriculas') }}">
+        <strong>Matrículas</strong>
+        <small>Vínculos ativos</small>
+      </a>
+      <a href="{{ url_for('baixar_relatorio_pdf') }}">
+        <strong>Relatório</strong>
+        <small>Baixar PDF</small>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="entry-shortcuts">
+  <a class="shortcut" href="{{ url_for('alunos') }}">
+    <span>Alunos</span>
+    <strong>Cadastros, busca e disciplinas matriculadas</strong>
+  </a>
+  <a class="shortcut" href="{{ url_for('professores') }}">
+    <span>Professores</span>
+    <strong>Dados docentes e disciplinas atribuídas</strong>
+  </a>
+  <a class="shortcut" href="{{ url_for('disciplinas') }}">
+    <span>Disciplinas</span>
+    <strong>Códigos, carga horária e professor responsável</strong>
+  </a>
+  <a class="shortcut" href="{{ url_for('matriculas') }}">
+    <span>Matrículas</span>
+    <strong>Gerenciamento dos vínculos acadêmicos</strong>
+  </a>
+</section>
+{% endblock %}

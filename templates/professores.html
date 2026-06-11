@@ -14,7 +14,7 @@
   <form class="panel form-panel" method="post">
     <h2>Novo professor</h2>
     <label>Nome<input name="nome" required></label>
-    <label>CPF<input name="cpf" required></label>
+    <label>CPF<input name="cpf" placeholder="000.000.000-00" required></label>
     <label>Registro<input name="registro" required></label>
     <label>Área<input name="area" required></label>
     <button type="submit">Cadastrar professor</button>
@@ -22,7 +22,14 @@
 
   <div class="panel">
     <div class="panel-header">
-      <h2>Professores cadastrados</h2>
+      <h2>Professores ativos</h2>
+      <form class="search-form" method="get">
+        <input name="pesquisa" placeholder="Pesquisar por nome" value="{{ pesquisa }}">
+        <button type="submit">Pesquisar</button>
+        {% if pesquisa %}
+          <a class="ghost-link" href="{{ url_for('professores') }}">Limpar</a>
+        {% endif %}
+      </form>
     </div>
     <div class="table-wrap">
       <table>
@@ -33,7 +40,7 @@
             <th>Registro</th>
             <th>Área</th>
             <th>Disciplinas</th>
-            <th></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -44,7 +51,14 @@
               <td data-label="Registro">{{ professor.registro }}</td>
               <td data-label="Área">{{ professor.area }}</td>
               <td data-label="Disciplinas">{{ professor.disciplinas or 'Nenhuma disciplina atribuída.' }}</td>
-              <td data-label="Ações"><a class="ghost-link" href="{{ url_for('editar_professor', professor_id=professor.id) }}">Editar</a></td>
+              <td data-label="Ações">
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('editar_professor', professor_id=professor.id) }}">Editar</a>
+                  <form class="inline-form" method="post" action="{{ url_for('arquivar_professor', professor_id=professor.id) }}">
+                    <button class="ghost danger" type="submit">Arquivar</button>
+                  </form>
+                </div>
+              </td>
             </tr>
           {% else %}
             <tr><td colspan="6" class="empty">Nenhum professor cadastrado.</td></tr>
@@ -52,6 +66,7 @@
         </tbody>
       </table>
     </div>
+    {% include "_pagination.html" %}
   </div>
 </section>
 {% endblock %}

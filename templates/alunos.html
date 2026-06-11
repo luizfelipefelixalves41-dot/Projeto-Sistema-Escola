@@ -14,7 +14,7 @@
   <form class="panel form-panel" method="post">
     <h2>Novo aluno</h2>
     <label>Nome<input name="nome" required></label>
-    <label>CPF<input name="cpf" required></label>
+    <label>CPF<input name="cpf" placeholder="000.000.000-00" required></label>
     <label>Matrícula<input name="matricula" required></label>
     <label>Curso<input name="curso" required></label>
     <button type="submit">Cadastrar aluno</button>
@@ -22,13 +22,9 @@
 
   <div class="panel">
     <div class="panel-header">
-      <h2>Alunos cadastrados</h2>
+      <h2>Alunos ativos</h2>
       <form class="search-form" method="get">
-        <input
-          name="pesquisa"
-          placeholder="Pesquisar por nome"
-          value="{{ pesquisa }}"
-        >
+        <input name="pesquisa" placeholder="Pesquisar por nome" value="{{ pesquisa }}">
         <button type="submit">Pesquisar</button>
         {% if pesquisa %}
           <a class="ghost-link" href="{{ url_for('alunos') }}">Limpar</a>
@@ -44,7 +40,7 @@
             <th>Matrícula</th>
             <th>Curso</th>
             <th>Disciplinas</th>
-            <th></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -55,7 +51,14 @@
               <td data-label="Matrícula">{{ aluno.matricula }}</td>
               <td data-label="Curso">{{ aluno.curso }}</td>
               <td data-label="Disciplinas">{{ aluno.disciplinas or 'Nenhuma disciplina matriculada.' }}</td>
-              <td data-label="Ações"><a class="ghost-link" href="{{ url_for('editar_aluno', aluno_id=aluno.id) }}">Editar</a></td>
+              <td data-label="Ações">
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('editar_aluno', aluno_id=aluno.id) }}">Editar</a>
+                  <form class="inline-form" method="post" action="{{ url_for('arquivar_aluno', aluno_id=aluno.id) }}">
+                    <button class="ghost danger" type="submit">Arquivar</button>
+                  </form>
+                </div>
+              </td>
             </tr>
           {% else %}
             {% if pesquisa %}
@@ -67,6 +70,7 @@
         </tbody>
       </table>
     </div>
+    {% include "_pagination.html" %}
   </div>
 </section>
 {% endblock %}

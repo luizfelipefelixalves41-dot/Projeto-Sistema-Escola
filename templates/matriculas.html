@@ -36,7 +36,14 @@
 
   <div class="panel">
     <div class="panel-header">
-      <h2>Matrículas realizadas</h2>
+      <h2>Matrículas ativas</h2>
+      <form class="search-form" method="get">
+        <input name="pesquisa" placeholder="Pesquisar aluno" value="{{ pesquisa }}">
+        <button type="submit">Pesquisar</button>
+        {% if pesquisa %}
+          <a class="ghost-link" href="{{ url_for('matriculas') }}">Limpar</a>
+        {% endif %}
+      </form>
     </div>
     <div class="table-wrap">
       <table>
@@ -46,7 +53,7 @@
             <th>Matrícula</th>
             <th>Disciplina</th>
             <th>Código</th>
-            <th></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +67,7 @@
                 <div class="row-actions">
                   <a class="ghost-link" href="{{ url_for('editar_matricula', matricula_id=matricula.id) }}">Editar</a>
                   <form class="inline-form" method="post" action="{{ url_for('excluir_matricula', matricula_id=matricula.id) }}">
-                  <button class="ghost" type="submit">Remover</button>
+                    <button class="ghost danger" type="submit">Remover</button>
                   </form>
                 </div>
               </td>
@@ -71,6 +78,7 @@
         </tbody>
       </table>
     </div>
+    {% include "_pagination.html" %}
   </div>
 </section>
 {% endblock %}

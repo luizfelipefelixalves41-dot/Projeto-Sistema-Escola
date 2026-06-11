@@ -27,6 +27,6 @@ class Disciplina:
     def __str__(self):
         nome_professor = self.professor.nome if self.professor else "Sem professor"
         return (
-            f"Disciplina: {self.nome} | Codigo: {self.codigo} | "
-            f"Carga horaria: {self.carga_horaria}h | Professor: {nome_professor}"
+            f"Disciplina: {self.nome} | Código: {self.codigo} | "
+            f"Carga horária: {self.carga_horaria}h | Professor: {nome_professor}"
         )

@@ -7,6 +7,18 @@ Se o MySQL não estiver instalado ou iniciado, a aplicação usa automaticamente
 um banco SQLite local chamado `sistema_academico.sqlite3`, permitindo testar a
 interface sem travar na conexão.
 
+## Funcionalidades
+
+- Cadastro, edição, busca e paginação de alunos, professores e disciplinas.
+- Matrícula de alunos em disciplinas.
+- Bloqueio de matrícula duplicada.
+- Validação real de CPF pelos dígitos verificadores.
+- Arquivamento lógico de alunos, professores e disciplinas.
+- Remoção lógica de matrículas mantendo histórico no banco.
+- Relatórios em JSON e PDF com resumo e status dos registros.
+- Fallback automático para SQLite em ambiente de desenvolvimento.
+- Testes automatizados com `unittest`.
+
 ## Requisitos
 
 - Python 3.10 ou superior.
@@ -46,6 +58,9 @@ mysql -u root -p < schema.sql
 O script cria o banco `sistema_academico`, as tabelas e alguns dados iniciais.
 O usuário usado no comando precisa ter permissão para criar banco, tabelas e
 inserir dados.
+
+Se o banco já existir de uma versão anterior, a aplicação tenta adicionar
+automaticamente as colunas de arquivamento ao iniciar.
 
 ## 4. Configurar conexão
 
@@ -87,6 +102,12 @@ Depois acesse:
 http://127.0.0.1:5000
 ```
 
+## 6. Rodar os testes
+
+```bash
+python -m unittest discover -s tests
+```
+
 ## Modo SQLite local
 
 Se o MySQL não estiver disponível, a aplicação usa SQLite automaticamente. Para
@@ -116,28 +137,13 @@ Antes de publicar o sistema fora do ambiente de desenvolvimento:
 - Use um servidor WSGI apropriado para produção.
 - Deixe `FLASK_DEBUG` desativado. O debug só liga se `FLASK_DEBUG=1`.
 
-## Homologação sugerida
-
-Antes de liberar o uso do sistema, registre quem aprovou a homologação e valide
-os critérios mínimos:
-
-- Cadastro, edição e listagem de alunos.
-- Cadastro, edição e listagem de professores.
-- Cadastro, edição e listagem de disciplinas.
-- Matrícula de aluno em disciplina.
-- Bloqueio de matrícula duplicada.
-- Remoção lógica de matrícula mantendo histórico no banco.
-- Pesquisa de aluno por nome.
-- Download dos relatórios JSON e PDF.
-- Testes com dados válidos, duplicados, incompletos e inválidos.
-- Validação das mensagens exibidas ao usuário.
-- Execução em MySQL quando o uso for fora do ambiente de desenvolvimento.
-
 ## Arquivos principais
 
 - `app.py`: rotas da aplicação Flask.
-- `db.py`: conexão e funções simples para consultar o banco.
+- `db.py`: conexão, fallback SQLite e adaptação simples do schema.
+- `validators.py`: validações de CPF, números e paginação.
 - `schema.sql`: criação do banco MySQL e tabelas.
 - `templates/`: telas HTML.
 - `static/styles.css`: estilo visual da interface.
 - `relatorios.py`: geração de relatórios JSON e PDF.
+- `tests/`: testes automatizados.

@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS alunos (
   cpf VARCHAR(20) NOT NULL UNIQUE,
   matricula VARCHAR(30) NOT NULL UNIQUE,
   curso VARCHAR(120) NOT NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  arquivado_em TIMESTAMP NULL,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -19,6 +21,8 @@ CREATE TABLE IF NOT EXISTS professores (
   cpf VARCHAR(20) NOT NULL UNIQUE,
   registro VARCHAR(30) NOT NULL UNIQUE,
   area VARCHAR(120) NOT NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  arquivado_em TIMESTAMP NULL,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -28,6 +32,8 @@ CREATE TABLE IF NOT EXISTS disciplinas (
   codigo VARCHAR(30) NOT NULL UNIQUE,
   carga_horaria INT NOT NULL,
   professor_id INT NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  arquivado_em TIMESTAMP NULL,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_disciplinas_professor
     FOREIGN KEY (professor_id) REFERENCES professores(id)

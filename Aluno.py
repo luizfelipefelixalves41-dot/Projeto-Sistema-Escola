@@ -30,5 +30,5 @@ class Aluno(Pessoa):
     def __str__(self):
         return (
             f"Aluno: {self.nome} | CPF: {self.cpf} | "
-            f"Matricula: {self.matricula} | Curso: {self.curso}"
+            f"Matrícula: {self.matricula} | Curso: {self.curso}"
         )

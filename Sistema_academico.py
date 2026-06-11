@@ -49,11 +49,11 @@ class SistemaAcademico:
         disciplina = self.buscar_disciplina_por_codigo(codigo_disciplina)
 
         if aluno is None:
-            print("Aluno nao encontrado.")
+            print("Aluno não encontrado.")
             return
 
         if disciplina is None:
-            print("Disciplina nao encontrada.")
+            print("Disciplina não encontrada.")
             return
 
         disciplina.matricular_aluno(aluno)
@@ -62,7 +62,7 @@ class SistemaAcademico:
     def editar_aluno(self, matricula, nome=None, cpf=None, nova_matricula=None, curso=None):
         aluno = self.buscar_aluno_por_matricula(matricula)
         if aluno is None:
-            print("Aluno nao encontrado.")
+            print("Aluno não encontrado.")
             return False
 
         if nome is not None:
@@ -80,7 +80,7 @@ class SistemaAcademico:
     def editar_professor(self, registro, nome=None, cpf=None, novo_registro=None, area=None):
         professor = self.buscar_professor_por_registro(registro)
         if professor is None:
-            print("Professor nao encontrado.")
+            print("Professor não encontrado.")
             return False
 
         if nome is not None:
@@ -105,7 +105,7 @@ class SistemaAcademico:
     ):
         disciplina = self.buscar_disciplina_por_codigo(codigo)
         if disciplina is None:
-            print("Disciplina nao encontrada.")
+            print("Disciplina não encontrada.")
             return False
 
         if nome is not None:

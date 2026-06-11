@@ -48,6 +48,7 @@ def _ensure_engine():
         _engine = "sqlite"
         return _engine
 
+    _ensure_mysql_schema(connection)
     connection.close()
     _engine = "mysql"
     return _engine
@@ -72,6 +73,8 @@ def _ensure_sqlite_schema(connection):
           cpf TEXT NOT NULL UNIQUE,
           matricula TEXT NOT NULL UNIQUE,
           curso TEXT NOT NULL,
+          ativo INTEGER NOT NULL DEFAULT 1,
+          arquivado_em TEXT NULL,
           criado_em TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -81,6 +84,8 @@ def _ensure_sqlite_schema(connection):
           cpf TEXT NOT NULL UNIQUE,
           registro TEXT NOT NULL UNIQUE,
           area TEXT NOT NULL,
+          ativo INTEGER NOT NULL DEFAULT 1,
+          arquivado_em TEXT NULL,
           criado_em TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -90,6 +95,8 @@ def _ensure_sqlite_schema(connection):
           codigo TEXT NOT NULL UNIQUE,
           carga_horaria INTEGER NOT NULL,
           professor_id INTEGER NULL,
+          ativo INTEGER NOT NULL DEFAULT 1,
+          arquivado_em TEXT NULL,
           criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE SET NULL
         );
@@ -117,6 +124,17 @@ def _ensure_sqlite_schema(connection):
         )
     if "removido_em" not in columns:
         connection.execute("ALTER TABLE matriculas ADD COLUMN removido_em TEXT NULL")
+    for tabela in ("alunos", "professores", "disciplinas"):
+        table_columns = {
+            row["name"]
+            for row in connection.execute(f"PRAGMA table_info({tabela})").fetchall()
+        }
+        if "ativo" not in table_columns:
+            connection.execute(
+                f"ALTER TABLE {tabela} ADD COLUMN ativo INTEGER NOT NULL DEFAULT 1"
+            )
+        if "arquivado_em" not in table_columns:
+            connection.execute(f"ALTER TABLE {tabela} ADD COLUMN arquivado_em TEXT NULL")
 
     connection.execute(
         """
@@ -159,6 +177,28 @@ def _ensure_sqlite_schema(connection):
         ("POO101", "2026001", "2026002"),
     )
     connection.commit()
+
+
+def _ensure_mysql_schema(connection):
+    cursor = connection.cursor()
+    for tabela in ("alunos", "professores", "disciplinas"):
+        cursor.execute(
+            """
+            SELECT COLUMN_NAME
+              FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s
+            """,
+            (DB_CONFIG["database"], tabela),
+        )
+        columns = {row[0] for row in cursor.fetchall()}
+        if "ativo" not in columns:
+            cursor.execute(
+                f"ALTER TABLE {tabela} ADD COLUMN ativo TINYINT(1) NOT NULL DEFAULT 1"
+            )
+        if "arquivado_em" not in columns:
+            cursor.execute(f"ALTER TABLE {tabela} ADD COLUMN arquivado_em TIMESTAMP NULL")
+    connection.commit()
+    cursor.close()
 
 
 @contextmanager

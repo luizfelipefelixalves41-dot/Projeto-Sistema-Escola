@@ -1,0 +1,11 @@
+{% if paginacao.paginas > 1 %}
+  <nav class="pagination" aria-label="Paginação">
+    {% if paginacao.tem_anterior %}
+      <a class="ghost-link" href="{{ url_for(request.endpoint, pesquisa=pesquisa, pagina=paginacao.pagina - 1) }}">Anterior</a>
+    {% endif %}
+    <span>Página {{ paginacao.pagina }} de {{ paginacao.paginas }}</span>
+    {% if paginacao.tem_proxima %}
+      <a class="ghost-link" href="{{ url_for(request.endpoint, pesquisa=pesquisa, pagina=paginacao.pagina + 1) }}">Próxima</a>
+    {% endif %}
+  </nav>
+{% endif %}

@@ -21,5 +21,5 @@ class Professor(Pessoa):
     def __str__(self):
         return (
             f"Professor: {self.nome} | CPF: {self.cpf} | "
-            f"Registro: {self.registro} | Area: {self.area}"
+            f"Registro: {self.registro} | Área: {self.area}"
         )

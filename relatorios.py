@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 def gerar_relatorio_json(dados, caminho=None):
-    conteudo = json.dumps(dados, ensure_ascii=False, indent=2)
+    conteudo = json.dumps(dados, ensure_ascii=False, indent=2, default=str)
     if caminho:
         with open(caminho, "w", encoding="utf-8") as arquivo:
             arquivo.write(conteudo)
@@ -21,34 +21,50 @@ def gerar_relatorio_pdf(dados, caminho=None):
 
 def _montar_linhas_relatorio(dados):
     linhas = [
-        "Relatorio do Sistema Academico",
+        "Relatório do Sistema Acadêmico",
         f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}",
+        f"Banco: {dados.get('banco', 'Não informado')}",
         "",
-        "ALUNOS",
+        "RESUMO",
     ]
+
+    resumo = dados.get("resumo", {})
+    linhas.extend(
+        [
+            f"- Alunos ativos: {resumo.get('alunos_ativos', 0)}",
+            f"- Professores ativos: {resumo.get('professores_ativos', 0)}",
+            f"- Disciplinas ativas: {resumo.get('disciplinas_ativas', 0)}",
+            f"- Matrículas ativas: {resumo.get('matriculas_ativas', 0)}",
+            "",
+            "ALUNOS",
+        ]
+    )
 
     for aluno in dados.get("alunos", []):
         linhas.append(
             f"- {aluno.get('nome')} | CPF: {aluno.get('cpf')} | "
-            f"Matricula: {aluno.get('matricula')} | Curso: {aluno.get('curso')}"
+            f"Matrícula: {aluno.get('matricula')} | Curso: {aluno.get('curso')} | "
+            f"Status: {aluno.get('status', 'ativo')}"
         )
 
     linhas.extend(["", "PROFESSORES"])
     for professor in dados.get("professores", []):
         linhas.append(
             f"- {professor.get('nome')} | CPF: {professor.get('cpf')} | "
-            f"Registro: {professor.get('registro')} | Area: {professor.get('area')}"
+            f"Registro: {professor.get('registro')} | Área: {professor.get('area')} | "
+            f"Status: {professor.get('status', 'ativo')}"
         )
 
     linhas.extend(["", "DISCIPLINAS"])
     for disciplina in dados.get("disciplinas", []):
         linhas.append(
-            f"- {disciplina.get('nome')} | Codigo: {disciplina.get('codigo')} | "
+            f"- {disciplina.get('nome')} | Código: {disciplina.get('codigo')} | "
             f"Carga: {disciplina.get('carga_horaria')}h | "
-            f"Professor: {disciplina.get('professor') or 'Sem professor'}"
+            f"Professor: {disciplina.get('professor') or 'Sem professor'} | "
+            f"Status: {disciplina.get('status', 'ativa')}"
         )
 
-    linhas.extend(["", "MATRICULAS"])
+    linhas.extend(["", "MATRÍCULAS"])
     for matricula in dados.get("matriculas", []):
         status = matricula.get("status", "ativa")
         linhas.append(
@@ -73,7 +89,8 @@ def _criar_pdf_texto(linhas):
         stream = _montar_stream_pagina(pagina)
         objetos.append(
             "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] "
-            f"/Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> "
+            "/Resources << /Font << /F1 << /Type /Font /Subtype /Type1 "
+            "/BaseFont /Helvetica >> >> >> "
             f"/Contents {content_obj} 0 R >>"
         )
         objetos.append(

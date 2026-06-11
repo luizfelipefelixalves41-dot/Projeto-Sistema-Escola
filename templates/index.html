@@ -16,25 +16,25 @@
 <section class="stats">
   <article>
     <span>{{ counts.alunos }}</span>
-    <p>Alunos</p>
+    <p>Alunos ativos</p>
   </article>
   <article>
     <span>{{ counts.professores }}</span>
-    <p>Professores</p>
+    <p>Professores ativos</p>
   </article>
   <article>
     <span>{{ counts.disciplinas }}</span>
-    <p>Disciplinas</p>
+    <p>Disciplinas ativas</p>
   </article>
   <article>
     <span>{{ counts.matriculas }}</span>
-    <p>Matrículas</p>
+    <p>Matrículas ativas</p>
   </article>
 </section>
 
 <section class="panel">
   <div class="panel-header">
-    <h2>Disciplinas ativas</h2>
+    <h2>Disciplinas em andamento</h2>
     <a class="button" href="{{ url_for('disciplinas') }}">Nova disciplina</a>
   </div>
   <div class="table-wrap">
