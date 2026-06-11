@@ -1,0 +1,298 @@
+MODIFICACOES REALIZADAS NO SISTEMA ACADEMICO
+
+Este arquivo registra as principais alteracoes feitas no projeto Sistema
+Academico, incluindo as melhorias anteriores e as melhorias finais aplicadas na
+versao web.
+
+1. Evolucao geral do projeto
+
+- O projeto evoluiu de uma base em orientacao a objetos para uma aplicacao web
+  com Flask.
+- Foram mantidas as classes principais do modelo academico:
+  Pessoa, Aluno, Professor, Disciplina e SistemaAcademico.
+- A aplicacao passou a ter interface no navegador, banco de dados, relatorios,
+  validacoes e testes automatizados.
+
+2. Tela de entrada do sistema
+
+- Foi criada uma nova tela inicial em /.
+- A tela apresenta a mensagem "Bem-vindo ao site escolar".
+- Foram adicionados atalhos para entrar nas areas de alunos, professores,
+  disciplinas, matriculas, painel e relatorios.
+- O painel principal, que antes ficava na rota /, foi movido para /painel.
+- O menu superior recebeu o link "Painel".
+
+Arquivos relacionados:
+
+- app.py
+- templates/entrada.html
+- templates/base.html
+- static/styles.css
+
+3. Painel principal
+
+- O painel mostra um resumo geral com:
+  - alunos ativos;
+  - professores ativos;
+  - disciplinas ativas;
+  - matriculas ativas.
+- A listagem do painel passou a exibir apenas disciplinas ativas.
+- O painel continua permitindo acesso aos relatorios JSON e PDF.
+
+Arquivos relacionados:
+
+- app.py
+- templates/index.html
+
+4. Melhorias de validacao
+
+- Foram adicionadas validacoes no backend para campos obrigatorios.
+- A carga horaria passou a ser validada como numero inteiro positivo.
+- O sistema passou a verificar se aluno, professor e disciplina existem antes
+  de salvar vinculos.
+- A validacao de CPF foi melhorada.
+- Antes o sistema apenas conferia se o CPF tinha 11 digitos.
+- Agora o CPF e validado pelos digitos verificadores.
+- CPFs invalidos, como 111.111.111-11, passaram a ser recusados.
+- Foi criado o arquivo validators.py para concentrar regras de validacao.
+
+Arquivos relacionados:
+
+- app.py
+- validators.py
+
+5. Melhorias contra duplicidade
+
+- O sistema continua usando restricoes UNIQUE no banco de dados.
+- Foram melhoradas as mensagens para CPF, matricula, registro ou codigo ja
+  cadastrados.
+- O cadastro de aluno, professor e disciplina trata erros de integridade de
+  forma mais clara.
+- A matricula duplicada continua bloqueada.
+- Se uma matricula removida for cadastrada novamente, ela pode ser reativada.
+
+Arquivos relacionados:
+
+- app.py
+- schema.sql
+- db.py
+
+6. Arquivamento e remocao logica
+
+- A remocao de matricula continua sendo logica.
+- A matricula deixa de aparecer como ativa, mas permanece no banco de dados.
+- Foram adicionados campos de controle para arquivamento:
+  - ativo;
+  - arquivado_em.
+- Alunos, professores e disciplinas passaram a ter arquivamento logico.
+- Ao arquivar um aluno, suas matriculas ativas sao desativadas.
+- Ao arquivar uma disciplina, suas matriculas ativas sao desativadas.
+- Ao arquivar um professor, suas disciplinas ficam sem professor definido.
+- Essa abordagem preserva historico e evita perda definitiva de dados.
+
+Arquivos relacionados:
+
+- app.py
+- db.py
+- schema.sql
+- Aluno.py
+
+7. Banco de dados
+
+- O sistema tenta usar MySQL como banco principal.
+- Se o MySQL nao estiver disponivel, usa SQLite local automaticamente.
+- O banco SQLite local usa o arquivo sistema_academico.sqlite3.
+- O db.py foi melhorado para garantir o schema do SQLite.
+- O db.py tambem passou a tentar adaptar tabelas MySQL antigas, adicionando as
+  colunas ativo e arquivado_em quando necessario.
+- O schema.sql foi atualizado para incluir as novas colunas.
+
+Arquivos relacionados:
+
+- db.py
+- schema.sql
+- sistema_academico.sqlite3
+
+8. Busca e paginacao
+
+- As listagens foram melhoradas com busca e paginacao.
+- A tela de alunos permite pesquisar por nome.
+- A tela de professores permite pesquisar por nome.
+- A tela de disciplinas permite pesquisar por nome.
+- A tela de matriculas permite pesquisar pelo nome do aluno.
+- Foi criado um template reutilizavel de paginacao.
+- A paginacao evita que as telas fiquem grandes demais quando houver muitos
+  registros.
+
+Arquivos relacionados:
+
+- app.py
+- templates/_pagination.html
+- templates/alunos.html
+- templates/professores.html
+- templates/disciplinas.html
+- templates/matriculas.html
+
+9. Interface e responsividade
+
+- Textos visiveis foram corrigidos e padronizados em portugues.
+- Acentuacoes quebradas foram corrigidas nas telas principais.
+- A interface recebeu ajustes para a nova tela de entrada.
+- Foram adicionados estilos para atalhos, botoes, cards de entrada e paginacao.
+- As tabelas continuam adaptadas para telas pequenas usando data-label.
+- A experiencia em celular ficou mais legivel.
+
+Arquivos relacionados:
+
+- static/styles.css
+- templates/base.html
+- templates/entrada.html
+- templates/alunos.html
+- templates/professores.html
+- templates/disciplinas.html
+- templates/matriculas.html
+- templates/editar_aluno.html
+- templates/editar_professor.html
+- templates/editar_disciplina.html
+- templates/editar_matricula.html
+- templates/erro.html
+
+10. Relatorios
+
+- Os relatorios em JSON e PDF foram mantidos.
+- Os relatorios passaram a incluir resumo geral.
+- Os relatorios tambem passaram a exibir status dos registros:
+  - ativo;
+  - arquivado;
+  - ativa;
+  - removida.
+- O relatorio preserva informacoes historicas que podem nao aparecer nas listas
+  principais.
+
+Arquivos relacionados:
+
+- relatorios.py
+- app.py
+
+11. Testes automatizados
+
+- Foi criada a pasta tests.
+- Foi criado o arquivo tests/test_app.py.
+- Os testes usam unittest, sem dependencia extra.
+- Foram testados:
+  - CPF valido;
+  - CPF invalido;
+  - bloqueio de aluno duplicado;
+  - arquivamento de aluno;
+  - desativacao de matriculas ao arquivar aluno.
+- Os testes foram executados com:
+
+  python -m unittest discover -s tests
+
+- Resultado obtido:
+
+  Ran 4 tests
+  OK
+
+Arquivos relacionados:
+
+- tests/test_app.py
+- validators.py
+- app.py
+
+12. README
+
+- O README foi reescrito e atualizado.
+- Foram adicionadas instrucoes de instalacao.
+- Foram adicionados passos para ambiente virtual.
+- Foram documentados MySQL, SQLite, variaveis de ambiente e modo de producao.
+- Foi adicionada instrucao para rodar testes.
+- A lista de arquivos principais foi atualizada.
+
+Arquivos relacionados:
+
+- README.md
+
+13. Ajustes nas classes de orientacao a objetos
+
+- Foram preservadas as classes:
+  - Pessoa;
+  - Aluno;
+  - Professor;
+  - Disciplina;
+  - SistemaAcademico.
+- Alguns textos exibidos pelos metodos __str__ foram ajustados com acentuacao.
+- O metodo remover_dados() da classe Aluno preserva dados principais do aluno e
+  apenas desfaz vinculos, limpando disciplinas e marcando o aluno como inativo.
+
+Arquivos relacionados:
+
+- Pessoa.py
+- Aluno.py
+- Professor.py
+- Disciplina.py
+- Sistema_academico.py
+
+14. Verificacoes realizadas
+
+- Foi executada verificacao de sintaxe dos arquivos Python com py_compile.
+- Foram executados testes automatizados com unittest.
+- Foram testadas rotas principais do Flask.
+- Foram testados downloads dos relatorios JSON e PDF.
+- As rotas principais responderam com sucesso.
+
+Rotas testadas:
+
+- /
+- /painel
+- /alunos
+- /professores
+- /disciplinas
+- /matriculas
+- /relatorios/json
+- /relatorios/pdf
+
+15. Envio ao GitHub
+
+- Todas as alteracoes do projeto foram enviadas ao GitHub.
+- Repositorio usado:
+
+  https://github.com/luizfelipefelixalves41-dot/Projeto-Sistema-Escola
+
+- Commit principal enviado:
+
+  d6f9958 - Melhora sistema academico web
+
+16. Arquivos principais alterados ou criados
+
+Arquivos alterados:
+
+- app.py
+- db.py
+- relatorios.py
+- schema.sql
+- README.md
+- Aluno.py
+- Professor.py
+- Disciplina.py
+- Sistema_academico.py
+- static/styles.css
+- templates/base.html
+- templates/index.html
+- templates/alunos.html
+- templates/professores.html
+- templates/disciplinas.html
+- templates/matriculas.html
+- templates/editar_aluno.html
+- templates/editar_professor.html
+- templates/editar_disciplina.html
+- templates/editar_matricula.html
+- templates/erro.html
+- modificacoes_realizadas.txt
+
+Arquivos criados:
+
+- validators.py
+- tests/test_app.py
+- templates/_pagination.html
+- templates/entrada.html
